@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.UI", "ConnectFour.UI\ConnectFour.UI.csproj", "{67D68086-CF53-4C91-B3AA-3B286F4CD101}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.07.FindDoubleThreat", "ConnectFour.Strategy.FindDoubleThreat\ConnectFour.Strategy.07.FindDoubleThreat.csproj", "{6195C8AA-0FFB-4E12-A1F8-750F0354B0BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.08.BlockDoubleThreat", "ConnectFour.Strategy.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj", "{3B7D8690-A5F1-4047-8EC8-6B3D5BFF5AFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.09.BasicSearch", "ConnectFour.Strategy.09.BasicSearch\ConnectFour.Strategy.09.BasicSearch.csproj", "{75337172-679D-485A-9A68-512BCB03698B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +79,10 @@ Global
 		{3B7D8690-A5F1-4047-8EC8-6B3D5BFF5AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B7D8690-A5F1-4047-8EC8-6B3D5BFF5AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B7D8690-A5F1-4047-8EC8-6B3D5BFF5AFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75337172-679D-485A-9A68-512BCB03698B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75337172-679D-485A-9A68-512BCB03698B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75337172-679D-485A-9A68-512BCB03698B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75337172-679D-485A-9A68-512BCB03698B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,5 +96,9 @@ Global
 		{04D13CDB-8978-4E26-A4CB-888775D8BE72} = {A997A575-5C2F-4E78-8F98-F25A86175AF2}
 		{6195C8AA-0FFB-4E12-A1F8-750F0354B0BA} = {A997A575-5C2F-4E78-8F98-F25A86175AF2}
 		{3B7D8690-A5F1-4047-8EC8-6B3D5BFF5AFE} = {A997A575-5C2F-4E78-8F98-F25A86175AF2}
+		{75337172-679D-485A-9A68-512BCB03698B} = {A997A575-5C2F-4E78-8F98-F25A86175AF2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {35CA6ACF-E97E-48ED-BD93-0E9953B4439A}
 	EndGlobalSection
 EndGlobal

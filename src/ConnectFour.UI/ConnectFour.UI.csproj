@@ -90,6 +90,10 @@
       <Project>{865e4231-20cf-4080-a607-9af7a953f453}</Project>
       <Name>ConnectFour.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ConnectFour.Strategy.09.BasicSearch\ConnectFour.Strategy.09.BasicSearch.csproj">
+      <Project>{75337172-679d-485a-9a68-512bcb03698b}</Project>
+      <Name>ConnectFour.Strategy.09.BasicSearch</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ConnectFour.Strategy.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj">
       <Project>{3b7d8690-a5f1-4047-8ec8-6b3d5bff5afe}</Project>
       <Name>ConnectFour.Strategy.08.BlockDoubleThreat</Name>

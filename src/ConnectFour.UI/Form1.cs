@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ConnectFour.Engine;
 using ConnectFour.Interfaces;
+using ConnectFour.Strategy.BasicSearch;
 using ConnectFour.Strategy.BlockDoubleThreat;
 using ConnectFour.Strategy.BlockOpponentsLine;
 using ConnectFour.Strategy.CountLineChips;
@@ -90,7 +91,7 @@ namespace ConnectFour.UI
             var engine = new GameEngine();
 
             _playerOne = new BlockDoubleThreatStrategy();
-            _playerTwo = new BlockDoubleThreatStrategy();
+            _playerTwo = new BasicSearchStrategy();
 
             var results = engine.RunSimulation(int.Parse(NumberOfGamesTextBox.Text), _playerOne, _playerTwo);
 

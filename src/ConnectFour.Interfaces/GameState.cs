@@ -129,14 +129,16 @@ namespace ConnectFour.Interfaces
 
             if (y == -1)
             {
-                chipCounts[board[col][5]]--;
-                board[col][5] = PlayerEnum.Empty;
-                chipCounts[PlayerEnum.Empty]++;
+                y = 5;
             }
             else
             {
-                board[col][y - 1] = PlayerEnum.Empty;
+                y = y - 1;
             }
+
+            chipCounts[board[col][y]]--;
+            board[col][y] = PlayerEnum.Empty;
+            chipCounts[PlayerEnum.Empty]++;
         }
 
         public int FindFirstEmptyRow(int column)
