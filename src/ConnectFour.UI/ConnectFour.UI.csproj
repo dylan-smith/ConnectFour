@@ -1,140 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{67D68086-CF53-4C91-B3AA-3B286F4CD101}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ConnectFour.UI</RootNamespace>
-    <AssemblyName>ConnectFour.UI</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile />
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\ConnectFour.Engine\ConnectFour.Engine.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.01.Random\ConnectFour.Strategy.01.Random.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.02.MakeWinningMove\ConnectFour.Strategy.02.MakeWinningMove.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.03.BlockOpponentsLine\ConnectFour.Strategy.03.BlockOpponentsLine.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.04.DontGiveOpponentWinningMove\ConnectFour.Strategy.04.DontGiveOpponentWinningMove.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.05.FindMoveWithHighestLineCount\ConnectFour.Strategy.05.FindMoveWithHighestLineCount.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.06.CountLineChips\ConnectFour.Strategy.06.CountLineChips.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.07.FindDoubleThreat\ConnectFour.Strategy.07.FindDoubleThreat.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.08.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.09.BasicSearch\ConnectFour.Strategy.09.BasicSearch.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ConnectFour.Engine\ConnectFour.Engine.csproj">
-      <Project>{aaaf9c75-ac90-4beb-adc4-67c99e8a0998}</Project>
-      <Name>ConnectFour.Engine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Interfaces\ConnectFour.Interfaces.csproj">
-      <Project>{865e4231-20cf-4080-a607-9af7a953f453}</Project>
-      <Name>ConnectFour.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.09.BasicSearch\ConnectFour.Strategy.09.BasicSearch.csproj">
-      <Project>{75337172-679d-485a-9a68-512bcb03698b}</Project>
-      <Name>ConnectFour.Strategy.09.BasicSearch</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj">
-      <Project>{3b7d8690-a5f1-4047-8ec8-6b3d5bff5afe}</Project>
-      <Name>ConnectFour.Strategy.08.BlockDoubleThreat</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.BlockOpponentsLine\ConnectFour.Strategy.03.BlockOpponentsLine.csproj">
-      <Project>{a78c17be-0962-4980-9be3-fe0e663922c5}</Project>
-      <Name>ConnectFour.Strategy.03.BlockOpponentsLine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.CountLineChips\ConnectFour.Strategy.06.CountLineChips.csproj">
-      <Project>{04d13cdb-8978-4e26-a4cb-888775d8be72}</Project>
-      <Name>ConnectFour.Strategy.06.CountLineChips</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.DontGiveOpponentWinningMove\ConnectFour.Strategy.04.DontGiveOpponentWinningMove.csproj">
-      <Project>{3200a319-e13b-42df-9f42-3c0dcd9ff014}</Project>
-      <Name>ConnectFour.Strategy.04.DontGiveOpponentWinningMove</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.FindDoubleThreat\ConnectFour.Strategy.07.FindDoubleThreat.csproj">
-      <Project>{6195c8aa-0ffb-4e12-a1f8-750f0354b0ba}</Project>
-      <Name>ConnectFour.Strategy.07.FindDoubleThreat</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.FindMoveWithHighestLineCount\ConnectFour.Strategy.05.FindMoveWithHighestLineCount.csproj">
-      <Project>{5c821691-22c9-4ccd-8425-c3f7449d6ba6}</Project>
-      <Name>ConnectFour.Strategy.05.FindMoveWithHighestLineCount</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.MakeWinningMove\ConnectFour.Strategy.02.MakeWinningMove.csproj">
-      <Project>{fe75e473-9b70-4582-9623-d8f1b18f21b0}</Project>
-      <Name>ConnectFour.Strategy.02.MakeWinningMove</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConnectFour.Strategy.Random\ConnectFour.Strategy.01.Random.csproj">
-      <Project>{05a70c5d-d2c0-4cb1-abbb-681c7c543117}</Project>
-      <Name>ConnectFour.Strategy.01.Random</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

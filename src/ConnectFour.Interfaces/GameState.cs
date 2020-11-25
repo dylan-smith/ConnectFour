@@ -10,6 +10,8 @@ namespace ConnectFour.Interfaces
 
         private Dictionary<PlayerEnum, int> chipCounts = new Dictionary<PlayerEnum, int>(5);
 
+        private Dictionary<WinningLine, (int playerOne, int playerTwo, int empty)> _lineChipCounts = new Dictionary<WinningLine, (int playerOne, int playerTwo, int empty)>();
+
         public GameState()
             : this(PlayerEnum.Empty)
         {
@@ -31,6 +33,11 @@ namespace ConnectFour.Interfaces
             }
 
             chipCounts[startState] = 42;
+
+            foreach (var line in WinningLines.GetAllWinningLines())
+            {
+                _lineChipCounts.Add(line, (0, 0, 4));
+            }
         }
 
         public GameState(GameState source)
@@ -123,7 +130,7 @@ namespace ConnectFour.Interfaces
             chipCounts[player]++;
         }
 
-        public void RemoveMove(int col)
+        public (int y, PlayerEnum player) RemoveMove(int col)
         {
             var y = FindFirstEmptyRow(col);
 
@@ -136,9 +143,12 @@ namespace ConnectFour.Interfaces
                 y = y - 1;
             }
 
-            chipCounts[board[col][y]]--;
+            var player = board[col][y];
+            chipCounts[player]--;
             board[col][y] = PlayerEnum.Empty;
             chipCounts[PlayerEnum.Empty]++;
+
+            return (y, player);
         }
 
         public int FindFirstEmptyRow(int column)

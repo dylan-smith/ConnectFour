@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>ConnectFour.Strategy.BasicSearch</RootNamespace>
+    <RootNamespace>ConnectFour.Strategy.DontGiveOpponentWinningMove</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
