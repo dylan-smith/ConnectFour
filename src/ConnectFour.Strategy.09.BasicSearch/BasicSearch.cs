@@ -63,11 +63,11 @@ namespace ConnectFour.Strategy.BasicSearch
 
             foreach (var m in safeMoves)
             {
-                AddMove(gameState, m, whoAreYou);
+                var y = AddMove(gameState, m, whoAreYou);
 
                 var winner = EvaluateState(gameState, GetOpponent(whoAreYou));
                 File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE =======================================================================\n");
-                RemoveMove(gameState, m);
+                RemoveMove(gameState, m, y, whoAreYou);
 
                 if (winner == whoAreYou)
                 {
@@ -88,18 +88,18 @@ namespace ConnectFour.Strategy.BasicSearch
             return safeMoves.First();
         }
 
-        private void RemoveMove(GameState gameState, int x)
+        private void RemoveMove(GameState gameState, int x, int y, PlayerEnum player)
         {
-            var (y, player) = gameState.RemoveMove(x);
+            gameState.RemoveMove(x, y);
             var lines = WinningLines.GetLinesByPoint(x, y);
 
-            // TODO: if we had a count of each players chips in each line this could be quicker
+            var opponent = GetOpponent(player);
 
             foreach (var line in lines)
             {
-                if (LineIsAvailable(line, gameState, GetOpponent(player)))
+                if (LineIsAvailable(line, gameState, opponent))
                 {
-                    _availableLines[GetOpponent(player)].Add(line);
+                    _availableLines[opponent].Add(line);
                 }
             }
         }
@@ -121,9 +121,14 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             _stateCount++;
 
-            if (_stateCount % 1000000 == 0)
+            //if (_stateCount % 1000000 == 0)
+            //{
+            //    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_stateCount}\n");
+            //}
+
+            if (_stateCount > 10000000)
             {
-                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_stateCount}\n");
+                return PlayerEnum.PlayerOne;
             }
 
             if (FindWinningMove(gameState, whoAreYou) != -1)
@@ -135,9 +140,9 @@ namespace ConnectFour.Strategy.BasicSearch
 
             if (forcedMove != -1)
             {
-                AddMove(gameState, forcedMove, whoAreYou);
+                var y = AddMove(gameState, forcedMove, whoAreYou);
                 var result = EvaluateState(gameState, GetOpponent(whoAreYou));
-                RemoveMove(gameState, forcedMove);
+                RemoveMove(gameState, forcedMove, y, whoAreYou);
 
                 return result;
             }
@@ -158,9 +163,9 @@ namespace ConnectFour.Strategy.BasicSearch
 
             foreach (var move in safeMoves)
             {
-                AddMove(gameState, move, whoAreYou);
+                var y = AddMove(gameState, move, whoAreYou);
                 var winner = EvaluateState(gameState, GetOpponent(whoAreYou));
-                RemoveMove(gameState, move);
+                RemoveMove(gameState, move, y, whoAreYou);
 
                 if (winner == whoAreYou)
                 {
@@ -181,30 +186,13 @@ namespace ConnectFour.Strategy.BasicSearch
             return GetOpponent(whoAreYou);
         }
 
-        // TODO: while the opponent only has one move to make the double-threat, there are a few choices of moves that would block it
-        // TODO: this only detects double-threats moves before my move, need to make sure not to make a move that creates a new double-threat opportunity (constrain safe moves)
-        //private int BlockOpponentDoubleThreatMove(GameState gameState, int[] safeMoves, PlayerEnum whoAreYou)
-        //{
-        //    var opponent = GetOpponent(whoAreYou);
-        //    var oppSafeMoves = FindSafeMoves(gameState, opponent);
-
-        //    var move = FindDoubleThreatMoves(gameState, oppSafeMoves, opponent);
-
-        //    if (move >= 0 && safeMoves.Contains(move))
-        //    {
-        //        return move;
-        //    }
-
-        //    return -1;
-        //}
-
         private int FindDoubleThreatMoves(GameState gameState, int[] safeMoves, PlayerEnum whoAreYou)
         {
             foreach (var m in safeMoves)
             {
                 var y = AddMove(gameState, m, whoAreYou);
                 var isDoubleThreat = DoesDoubleThreatExist(gameState, whoAreYou);
-                RemoveMove(gameState, m);
+                RemoveMove(gameState, m, y, whoAreYou);
 
                 if (isDoubleThreat)
                 {
@@ -254,53 +242,6 @@ namespace ConnectFour.Strategy.BasicSearch
 
             throw new ArgumentException("Line didn't contain any empty positions");
         }
-
-        //private int FindMoveWithMostLineChips(GameState gameState, int[] safeMoves, PlayerEnum whoAreYou)
-        //{
-        //    var maxLineChipCount = int.MinValue;
-        //    var result = 0;
-
-        //    foreach (var m in safeMoves)
-        //    {
-        //        var y = gameState.FindFirstEmptyRow(m);
-        //        var lines = WinningLines.GetLinesByPoint(m, y);
-
-        //        var lineChipCount = CountLineChips(gameState, lines, whoAreYou);
-
-        //        if (lineChipCount > maxLineChipCount)
-        //        {
-        //            result = m;
-        //            maxLineChipCount = lineChipCount;
-        //        }
-        //    }
-
-        //    return result;
-        //}
-
-        //private int CountLineChips(GameState gameState, IEnumerable<WinningLine> lines, PlayerEnum whoAreYou)
-        //{
-        //    return lines.Sum(line => CountChipsInLine(gameState, whoAreYou, line));
-        //}
-
-        //private int CountChipsInLine(GameState gameState, PlayerEnum whoAreYou, WinningLine line)
-        //{
-        //    var result = 1;
-
-        //    if (!LineIsAvailable(line, gameState, whoAreYou))
-        //    {
-        //        return 0;
-        //    }
-
-        //    foreach (var p in line)
-        //    {
-        //        if (gameState.GetPosition(p) == whoAreYou)
-        //        {
-        //            result++;
-        //        }
-        //    }
-
-        //    return result;
-        //}
 
         private bool LineIsAvailable(WinningLine line, GameState gameState, PlayerEnum whoAreYou)
         {
@@ -352,11 +293,11 @@ namespace ConnectFour.Strategy.BasicSearch
         private bool CheckIfMoveIsSafe(GameState gameState, int col, PlayerEnum whoAreYou)
         {
             var opponent = GetOpponent(whoAreYou);
-            AddMove(gameState, col, whoAreYou);
+            var y = AddMove(gameState, col, whoAreYou);
 
             var winningMove = FindWinningMove(gameState, opponent);
 
-            RemoveMove(gameState, col);
+            RemoveMove(gameState, col, y, whoAreYou);
 
             if (winningMove == -1)
             {

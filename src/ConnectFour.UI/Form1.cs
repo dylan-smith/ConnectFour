@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -88,14 +89,26 @@ namespace ConnectFour.UI
 
         private void RunSimulationButton_Click(object sender, EventArgs e)
         {
-            var engine = new GameEngine();
+            //var engine = new GameEngine();
 
-            _playerOne = new BlockDoubleThreatStrategy();
-            _playerTwo = new BasicSearchStrategy();
+            //_playerOne = new BlockDoubleThreatStrategy();
+            //_playerTwo = new BasicSearchStrategy();
 
-            var results = engine.RunSimulation(int.Parse(NumberOfGamesTextBox.Text), _playerOne, _playerTwo);
+            //var results = engine.RunSimulation(int.Parse(NumberOfGamesTextBox.Text), _playerOne, _playerTwo);
 
-            ShowResults(results);
+            //ShowResults(results);
+
+
+            var strat = new BasicSearchStrategy();
+            WinningLines.Initialize();
+            var state = new GameState();
+
+            var start = new Stopwatch();
+            start.Start();
+            strat.MakeMove(state, PlayerEnum.PlayerOne);
+            var end = start.ElapsedMilliseconds;
+
+            MessageBox.Show("Done! " + end.ToString());
         }
 
         private void ShowResults(SimulationResult results)
@@ -270,11 +283,11 @@ namespace ConnectFour.UI
 
         private void CalculateStatsButton_Click(object sender, EventArgs e)
         {
-            var stats = new StatsCalculator();
+            //var stats = new StatsCalculator();
 
-            var stateCount = stats.CountValidGameStatesStart();
+            //var stateCount = stats.CountValidGameStatesStart();
 
-            MessageBox.Show(stateCount.ToString());
+            //MessageBox.Show(stateCount.ToString());
         }
 
         private void DebugNextMoveButton_Click(object sender, EventArgs e)

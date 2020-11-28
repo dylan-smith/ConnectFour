@@ -10,7 +10,7 @@ namespace ConnectFour.Interfaces
 
         private Dictionary<PlayerEnum, int> chipCounts = new Dictionary<PlayerEnum, int>(5);
 
-        private Dictionary<WinningLine, (int playerOne, int playerTwo, int empty)> _lineChipCounts = new Dictionary<WinningLine, (int playerOne, int playerTwo, int empty)>();
+        private int[] _nextEmptyRow;
 
         public GameState()
             : this(PlayerEnum.Empty)
@@ -34,10 +34,7 @@ namespace ConnectFour.Interfaces
 
             chipCounts[startState] = 42;
 
-            foreach (var line in WinningLines.GetAllWinningLines())
-            {
-                _lineChipCounts.Add(line, (0, 0, 4));
-            }
+            _nextEmptyRow = new int[7];
         }
 
         public GameState(GameState source)
@@ -98,7 +95,7 @@ namespace ConnectFour.Interfaces
         {
             for (int i = 0; i < 7; i++)
             {
-                if (FindFirstEmptyRow(i) != -1)
+                if (_nextEmptyRow[i] <= 5)
                 {
                     return true;
                 }
@@ -109,9 +106,9 @@ namespace ConnectFour.Interfaces
 
         public int AddMove(int move, PlayerEnum player)
         {
-            var y = FindFirstEmptyRow(move);
+            var y = _nextEmptyRow[move];
 
-            if (y == -1)
+            if (y > 5)
             {
                 throw new ArgumentException("Invalid Move - that column is full");
             }
@@ -119,50 +116,25 @@ namespace ConnectFour.Interfaces
             chipCounts[board[move][y]]--;
             board[move][y] = player;
             chipCounts[player]++;
+            _nextEmptyRow[move]++;
 
             return y;
         }
 
-        public void UpdateWithMove(int x, int y, PlayerEnum player)
+        public void RemoveMove(int x, int y)
         {
             chipCounts[board[x][y]]--;
-            board[x][y] = player;
-            chipCounts[player]++;
-        }
-
-        public (int y, PlayerEnum player) RemoveMove(int col)
-        {
-            var y = FindFirstEmptyRow(col);
-
-            if (y == -1)
-            {
-                y = 5;
-            }
-            else
-            {
-                y = y - 1;
-            }
-
-            var player = board[col][y];
-            chipCounts[player]--;
-            board[col][y] = PlayerEnum.Empty;
+            board[x][y] = PlayerEnum.Empty;
             chipCounts[PlayerEnum.Empty]++;
 
-            return (y, player);
+            _nextEmptyRow[x] = y;
         }
 
         public int FindFirstEmptyRow(int column)
         {
-            int y = 0;
-
-            while (y < 6)
+            if (_nextEmptyRow[column] <= 5)
             {
-                if (board[column][y] == PlayerEnum.Empty)
-                {
-                    return y;
-                }
-
-                y++;
+                return _nextEmptyRow[column];
             }
 
             return -1;

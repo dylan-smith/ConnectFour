@@ -65,7 +65,7 @@ namespace ConnectFour.Strategy.BlockDoubleThreat
             {
                 var y = gameState.AddMove(m, whoAreYou);
                 var isDoubleThreat = DoesDoubleThreatExist(gameState, whoAreYou);
-                gameState.UpdateWithMove(m, y, PlayerEnum.Empty);
+                gameState.RemoveMove(m, y);
 
                 if (isDoubleThreat)
                 {
@@ -215,11 +215,11 @@ namespace ConnectFour.Strategy.BlockDoubleThreat
         private bool CheckIfMoveIsSafe(GameState gameState, int col, PlayerEnum whoAreYou)
         {
             var opponent = GetOpponent(whoAreYou);
-            gameState.AddMove(col, whoAreYou);
+            var y = gameState.AddMove(col, whoAreYou);
 
             var winningMove = FindWinningMove(gameState, opponent);
 
-            gameState.RemoveMove(col);
+            gameState.RemoveMove(col, y);
 
             if (winningMove == -1)
             {
