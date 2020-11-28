@@ -66,11 +66,12 @@ namespace ConnectFour.Strategy.BasicSearch
                 var y = AddMove(gameState, m, whoAreYou);
 
                 var winner = EvaluateState(gameState, GetOpponent(whoAreYou));
-                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE =======================================================================\n");
+                
                 RemoveMove(gameState, m, y, whoAreYou);
 
                 if (winner == whoAreYou)
                 {
+                    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Winner) =======================================================================\n");
                     return m;
                 }
 
@@ -82,9 +83,11 @@ namespace ConnectFour.Strategy.BasicSearch
 
             if (drawMove != -1)
             {
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Draw) =======================================================================\n");
                 return drawMove;
             }
 
+            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Loser) =======================================================================\n");
             return safeMoves.First();
         }
 
@@ -121,15 +124,15 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             _stateCount++;
 
-            //if (_stateCount % 1000000 == 0)
-            //{
-            //    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_stateCount}\n");
-            //}
-
-            if (_stateCount > 10000000)
+            if (_stateCount % 1000000 == 0)
             {
-                return PlayerEnum.PlayerOne;
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_stateCount}\n");
             }
+
+            //if (_stateCount > 10000000)
+            //{
+            //    return PlayerEnum.PlayerOne;
+            //}
 
             if (FindWinningMove(gameState, whoAreYou) != -1)
             {

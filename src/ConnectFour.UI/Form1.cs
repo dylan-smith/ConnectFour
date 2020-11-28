@@ -99,16 +99,87 @@ namespace ConnectFour.UI
             //ShowResults(results);
 
 
-            var strat = new BasicSearchStrategy();
+            var playerOne = new BasicSearchStrategy();
+            var playerTwo = new BlockDoubleThreatStrategy();
+
             WinningLines.Initialize();
             var state = new GameState();
+            var log = new GameLog(PlayerEnum.PlayerOne);
+            var results = new SimulationResult();
 
-            var start = new Stopwatch();
-            start.Start();
-            strat.MakeMove(state, PlayerEnum.PlayerOne);
-            var end = start.ElapsedMilliseconds;
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            log.Moves.Add(0);
+            state.AddMove(1, PlayerEnum.PlayerTwo);
+            log.Moves.Add(1);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            log.Moves.Add(2);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            log.Moves.Add(3);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            log.Moves.Add(4);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            log.Moves.Add(5);
+            state.AddMove(6, PlayerEnum.PlayerOne);
+            log.Moves.Add(6);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            log.Moves.Add(0);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            log.Moves.Add(1);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+            log.Moves.Add(2);
+            state.AddMove(3, PlayerEnum.PlayerOne);
+            log.Moves.Add(3);
+            state.AddMove(4, PlayerEnum.PlayerTwo);
+            log.Moves.Add(4);
+            state.AddMove(5, PlayerEnum.PlayerOne);
+            log.Moves.Add(5);
+            state.AddMove(6, PlayerEnum.PlayerTwo);
+            log.Moves.Add(6);
 
-            MessageBox.Show("Done! " + end.ToString());
+            var whoGoesNext = PlayerEnum.PlayerOne;
+
+            while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
+            {
+                int nextMove;
+
+                if (whoGoesNext == PlayerEnum.PlayerOne)
+                {
+                    nextMove = playerOne.MakeMove(state, whoGoesNext);
+                }
+                else
+                {
+                    nextMove = playerTwo.MakeMove(state, whoGoesNext);
+                }
+
+                state.AddMove(nextMove, whoGoesNext);
+                log.Moves.Add(nextMove);
+
+                var whoWon = state.CheckForWinner();
+
+                if (whoWon != PlayerEnum.GameNotDone)
+                {
+                    log.Winner = whoWon;
+                    results.AddGameResult(log);
+                }
+
+                if (whoGoesNext == PlayerEnum.PlayerOne)
+                {
+                    whoGoesNext = PlayerEnum.PlayerTwo;
+                }
+                else
+                {
+                    whoGoesNext = PlayerEnum.PlayerOne;
+                }
+            }
+
+            ShowResults(results);
+
+            //var start = new Stopwatch();
+            //start.Start();
+            //strat.MakeMove(state, PlayerEnum.PlayerOne);
+            //var end = start.ElapsedMilliseconds;
+
+            //MessageBox.Show("Done! " + end.ToString());
         }
 
         private void ShowResults(SimulationResult results)
