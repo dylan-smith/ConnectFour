@@ -7,10 +7,10 @@ namespace ConnectFour.Interfaces
 {
     public enum PlayerEnum
     {
-        PlayerOne,
-        PlayerTwo,
-        Empty,
-        Stalemate,
-        GameNotDone
+        PlayerOne = 1,
+        PlayerTwo = 2,
+        Empty = 0,
+        Stalemate = 3,
+        GameNotDone = 4
     }
 }

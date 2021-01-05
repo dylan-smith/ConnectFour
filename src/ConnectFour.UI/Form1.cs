@@ -131,12 +131,19 @@ namespace ConnectFour.UI
             log.Moves.Add(3);
             state.AddMove(4, PlayerEnum.PlayerTwo);
             log.Moves.Add(4);
-            state.AddMove(5, PlayerEnum.PlayerOne);
-            log.Moves.Add(5);
-            state.AddMove(6, PlayerEnum.PlayerTwo);
-            log.Moves.Add(6);
+
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            log.Moves.Add(0);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerOne);
+            //log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerTwo);
+            //log.Moves.Add(0);
 
             var whoGoesNext = PlayerEnum.PlayerOne;
+
+            playerOne.GenerateDatabase(state, whoGoesNext);
 
             while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
             {
@@ -174,12 +181,17 @@ namespace ConnectFour.UI
 
             ShowResults(results);
 
+
+
             //var start = new Stopwatch();
             //start.Start();
             //strat.MakeMove(state, PlayerEnum.PlayerOne);
             //var end = start.ElapsedMilliseconds;
 
             //MessageBox.Show("Done! " + end.ToString());
+
+
+            
         }
 
         private void ShowResults(SimulationResult results)
