@@ -32,10 +32,9 @@ namespace ConnectFour.Strategy.BasicSearch
                     var y2 = state.AddMove(b, opponent);
                     var threadState = state.Copy();
 
-                    //var task = new Task(() => EvaluateState(threadState, player, 2));
-                    //task.Start();
-                    //tasks.Add(task);
-                    EvaluateState(threadState, player, 2);
+                    var task = new Task(() => EvaluateState(threadState, player, 2));
+                    task.Start();
+                    tasks.Add(task);
 
                     state.RemoveMove(b, y2);
                 }
@@ -276,9 +275,12 @@ namespace ConnectFour.Strategy.BasicSearch
                 var encoding = EncodeState(state);
                 _decisions.TryAdd((encoding.state1, encoding.state2), winner);
 
-                if (_decisions.Count % 10 == 0)
+                if (_decisions.Count % 100 == 0)
                 {
-                    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_decisions.Count}\n");
+                    lock (_decisions)
+                    {
+                        File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_decisions.Count}\n");
+                    }
                 }
             }
         }
