@@ -136,10 +136,10 @@ namespace ConnectFour.UI
             log.Moves.Add(0);
             state.AddMove(0, PlayerEnum.PlayerTwo);
             log.Moves.Add(0);
-            //state.AddMove(0, PlayerEnum.PlayerOne);
-            //log.Moves.Add(0);
-            //state.AddMove(0, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(0);
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            log.Moves.Add(0);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            log.Moves.Add(0);
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 

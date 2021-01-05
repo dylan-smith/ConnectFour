@@ -6,9 +6,11 @@ namespace ConnectFour.Interfaces
 {
     public class GameState
     {
-        private PlayerEnum[][] board;
+        private PlayerEnum[][] _board;
 
-        private Dictionary<PlayerEnum, int> chipCounts = new Dictionary<PlayerEnum, int>(5);
+        private Dictionary<PlayerEnum, int> _chipCounts = new Dictionary<PlayerEnum, int>(5);
+
+        private Dictionary<PlayerEnum, List<WinningLine>> _availableLines;
 
         private int[] _nextEmptyRow;
 
@@ -21,52 +23,107 @@ namespace ConnectFour.Interfaces
         {
             InitializeChipCounts();
 
-            board = new PlayerEnum[7][];
+            _board = new PlayerEnum[7][];
 
             for (int x = 0; x < 7; x++)
             {
-                board[x] = new PlayerEnum[6];
+                _board[x] = new PlayerEnum[6];
                 for (int y = 0; y < 6; y++)
                 {
-                    board[x][y] = startState;
+                    _board[x][y] = startState;
                 }
             }
 
-            chipCounts[startState] = 42;
+            _chipCounts[startState] = 42;
 
             _nextEmptyRow = new int[7];
+
+            _availableLines = InitializeAvailableLines();
+        }
+
+        private Dictionary<PlayerEnum, List<WinningLine>> InitializeAvailableLines()
+        {
+            var result = new Dictionary<PlayerEnum, List<WinningLine>>
+            {
+                { PlayerEnum.PlayerOne, new List<WinningLine>() },
+                { PlayerEnum.PlayerTwo, new List<WinningLine>() }
+            };
+
+            foreach (var line in WinningLines.GetAllWinningLines())
+            {
+                if (LineIsAvailable(line, PlayerEnum.PlayerOne))
+                {
+                    result[PlayerEnum.PlayerOne].Add(line);
+                }
+
+                if (LineIsAvailable(line, PlayerEnum.PlayerTwo))
+                {
+                    result[PlayerEnum.PlayerTwo].Add(line);
+                }
+            }
+
+            return result;
+        }
+
+        private bool LineIsAvailable(WinningLine line, PlayerEnum whoAreYou)
+        {
+            foreach (var p in line)
+            {
+                var pos = GetPosition(p);
+                if (pos != whoAreYou && pos != PlayerEnum.Empty)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public List<WinningLine> GetAvailableLines(PlayerEnum player)
+        {
+            return _availableLines[player];
         }
 
         public GameState(GameState source)
         {
             InitializeChipCounts();
 
-            board = new PlayerEnum[7][];
+            _board = new PlayerEnum[7][];
+            _nextEmptyRow = new int[7];
 
             for (int x = 0; x < 7; x++)
             {
-                board[x] = new PlayerEnum[6];
+                _board[x] = new PlayerEnum[6];
                 for (int y = 0; y < 6; y++)
                 {
-                    board[x][y] = source.GetPosition(x, y);
-                    chipCounts[source.GetPosition(x, y)]++;
+                    var sourcePlayer = source.GetPosition(x, y);
+
+                    _board[x][y] = sourcePlayer;
+                    _chipCounts[sourcePlayer]++;
+
+                    if (sourcePlayer == PlayerEnum.PlayerOne || sourcePlayer == PlayerEnum.PlayerTwo)
+                    {
+                        _nextEmptyRow[x] = y + 1;
+                    }
                 }
             }
+
+            _availableLines = InitializeAvailableLines();
         }
 
         public int GetChipCount(PlayerEnum player)
         {
-            return chipCounts[player];
+            return _chipCounts[player];
         }
 
         public PlayerEnum GetPosition(int x, int y)
         {
-            return board[x][y];
+            return _board[x][y];
         }
 
         public PlayerEnum GetPosition(Point p)
         {
-            return board[p.X][p.Y];
+            return _board[p.X][p.Y];
         }
 
         public PlayerEnum CheckForWinner()
@@ -113,21 +170,52 @@ namespace ConnectFour.Interfaces
                 throw new ArgumentException("Invalid Move - that column is full");
             }
 
-            chipCounts[board[move][y]]--;
-            board[move][y] = player;
-            chipCounts[player]++;
+            _chipCounts[_board[move][y]]--;
+            _board[move][y] = player;
+            _chipCounts[player]++;
             _nextEmptyRow[move]++;
+
+            var lines = WinningLines.GetLinesByPoint(move, y);
+            var opponent = GetOpponent(player);
+
+            foreach (var line in lines)
+            {
+                _availableLines[opponent].Remove(line);
+            }
 
             return y;
         }
 
         public void RemoveMove(int x, int y)
         {
-            chipCounts[board[x][y]]--;
-            board[x][y] = PlayerEnum.Empty;
-            chipCounts[PlayerEnum.Empty]++;
+            var player = _board[x][y];
+            _chipCounts[player]--;
+            _board[x][y] = PlayerEnum.Empty;
+            _chipCounts[PlayerEnum.Empty]++;
 
             _nextEmptyRow[x] = y;
+
+            var lines = WinningLines.GetLinesByPoint(x, y);
+            
+            var opponent = GetOpponent(player);
+
+            foreach (var line in lines)
+            {
+                if (LineIsAvailable(line, opponent))
+                {
+                    _availableLines[opponent].Add(line);
+                }
+            }
+        }
+
+        private PlayerEnum GetOpponent(PlayerEnum whoAreYou)
+        {
+            if (whoAreYou == PlayerEnum.PlayerOne)
+            {
+                return PlayerEnum.PlayerTwo;
+            }
+
+            return PlayerEnum.PlayerOne;
         }
 
         public int FindFirstEmptyRow(int column)
@@ -149,7 +237,7 @@ namespace ConnectFour.Interfaces
         {
             foreach (var x in Enum.GetValues(typeof(PlayerEnum)))
             {
-                chipCounts.Add((PlayerEnum)x, 0);
+                _chipCounts.Add((PlayerEnum)x, 0);
             }
         }
     }
