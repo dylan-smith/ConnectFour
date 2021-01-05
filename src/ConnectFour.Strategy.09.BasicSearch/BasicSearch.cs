@@ -1,25 +1,27 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using ConnectFour.Interfaces;
 
 namespace ConnectFour.Strategy.BasicSearch
 {
     public class BasicSearchStrategy : IStrategy
     {
-        private long _stateCount = 0;
-        private HashSet<(ulong state1, ulong state2, PlayerEnum winner)> _decisions;
+        private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> _decisions;
         private bool _generateDecisions = false;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
             var opponent = GetOpponent(player);
-            _decisions = new HashSet<(ulong state1, ulong state2, PlayerEnum winner)>();
+            _decisions = new ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum>();
 
             _generateDecisions = true;
+            var tasks = new List<Task>();
 
             for (var a = 1; a <= 6; a++)
             {
@@ -30,6 +32,9 @@ namespace ConnectFour.Strategy.BasicSearch
                     var y2 = state.AddMove(b, opponent);
                     var threadState = state.Copy();
 
+                    //var task = new Task(() => EvaluateState(threadState, player, 2));
+                    //task.Start();
+                    //tasks.Add(task);
                     EvaluateState(threadState, player, 2);
 
                     state.RemoveMove(b, y2);
@@ -38,42 +43,44 @@ namespace ConnectFour.Strategy.BasicSearch
                 state.RemoveMove(a, y1);
             }
 
+            Task.WaitAll(tasks.ToArray());
+
             _generateDecisions = false;
 
             WriteDecisionsToDatabase(_decisions);
         }
 
-        private HashSet<(ulong state1, ulong state2, PlayerEnum winner)> ReadDecisionsFromDatabase()
+        private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> ReadDecisionsFromDatabase()
         {
             var db = new SqlServerDatabaseLayer("Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;");
 
             var table = db.GetDataTable("SELECT * FROM Decisions");
 
-            var result = new HashSet<(ulong state1, ulong state2, PlayerEnum winner)>();
+            var result = new ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum>();
 
             foreach (var row in table)
             {
-                result.Add((Convert.ToUInt64((long)row["State1"]), Convert.ToUInt64((long)row["State2"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"])));
+                result.TryAdd((Convert.ToUInt64((long)row["State1"]), Convert.ToUInt64((long)row["State2"])), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
             }
 
             return result;
         }
 
-        private void WriteDecisionsToDatabase(HashSet<(ulong state1, ulong state2, PlayerEnum winner)> decisions)
+        private void WriteDecisionsToDatabase(ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> decisions)
         {
-            var dataTable = CreateDecisionsTable(decisions);
+            var dataTable = CreateDecisionsTable();
             var db = new SqlServerDatabaseLayer("Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;");
 
-            foreach (var (state1, state2, winner) in decisions)
+            foreach (var decision in decisions)
             {
-                InsertRowToDecisionsTable(state1, state2, winner, dataTable);
+                InsertRowToDecisionsTable(decision.Key.state1, decision.Key.state2, decision.Value, dataTable);
             }
 
             db.ExecuteNonQuery("TRUNCATE TABLE Decisions");
             db.BulkCopy("Decisions", dataTable);
         }
 
-        private DataTable CreateDecisionsTable(HashSet<(ulong, ulong, PlayerEnum)> decisions)
+        private DataTable CreateDecisionsTable()
         {
             var result = new DataTable("Decisions");
 
@@ -161,13 +168,6 @@ namespace ConnectFour.Strategy.BasicSearch
 
         private PlayerEnum EvaluateState(GameState state, PlayerEnum whoAreYou, int depth)
         {
-            _stateCount++;
-
-            if (_stateCount % 1000000 == 0)
-            {
-                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_stateCount}\n");
-            }
-
             if (CheckDecision(state))
             {
                 return GetDecision(state);
@@ -250,27 +250,9 @@ namespace ConnectFour.Strategy.BasicSearch
 
         private PlayerEnum GetDecision(GameState state)
         {
-            if (_decisions != null)
-            {
-                var encoding = EncodeState(state);
+            var encoding = EncodeState(state);
 
-                if (_decisions.Contains((encoding.state1, encoding.state2, PlayerEnum.PlayerOne)))
-                {
-                    return PlayerEnum.PlayerOne;
-                }
-
-                if (_decisions.Contains((encoding.state1, encoding.state2, PlayerEnum.PlayerTwo)))
-                {
-                    return PlayerEnum.PlayerTwo;
-                }
-
-                if (_decisions.Contains((encoding.state1, encoding.state2, PlayerEnum.Stalemate)))
-                {
-                    return PlayerEnum.Stalemate;
-                }
-            }
-
-            throw new ArgumentException("No decision found", nameof(state));
+            return _decisions[(encoding.state1, encoding.state2)];
         }
 
         private bool CheckDecision(GameState state)
@@ -278,9 +260,7 @@ namespace ConnectFour.Strategy.BasicSearch
             if (_decisions != null)
             {
                 var encoding = EncodeState(state);
-                if (_decisions.Contains((encoding.state1, encoding.state2, PlayerEnum.PlayerOne)) ||
-                    _decisions.Contains((encoding.state1, encoding.state2, PlayerEnum.PlayerTwo)) ||
-                    _decisions.Contains((encoding.state1, encoding.state2, PlayerEnum.Stalemate)))
+                if (_decisions.ContainsKey((encoding.state1, encoding.state2)))
                 {
                     return true;
                 }
@@ -294,7 +274,12 @@ namespace ConnectFour.Strategy.BasicSearch
             if (_generateDecisions)
             {
                 var encoding = EncodeState(state);
-                _decisions.Add((encoding.state1, encoding.state2, winner));
+                _decisions.TryAdd((encoding.state1, encoding.state2), winner);
+
+                if (_decisions.Count % 10 == 0)
+                {
+                    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_decisions.Count}\n");
+                }
             }
         }
 
