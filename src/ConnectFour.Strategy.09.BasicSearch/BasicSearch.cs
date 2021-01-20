@@ -14,7 +14,7 @@ namespace ConnectFour.Strategy.BasicSearch
     {
         private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> _decisions;
         private bool _generateDecisions = false;
-        private const int STORAGE_DEPTH = 16;
+        private const int STORAGE_DEPTH = 24;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
@@ -24,40 +24,42 @@ namespace ConnectFour.Strategy.BasicSearch
             _generateDecisions = true;
             var tasks = new List<Task>();
 
+            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] STARTING\n");
+
             for (var a = 0; a <= 6; a++)
             {
                 var y1 = state.AddMove(a, player);
 
-                for (var b = 0; b <= 6; b++)
-                {
-                    var y2 = state.AddMove(b, opponent);
+                var threadState = state.Copy();
 
-                    var threadState = state.Copy();
+                var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, 1).Result);
+                task.Start();
+                tasks.Add(task);
 
-                    //var task = new Task(async () => await EvaluateState(threadState, opponent, 3));
-                    //var task = EvaluateState(threadState, opponent, 3);
-                    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, 2).Result);
-                    task.Start();
-                    tasks.Add(task);
+                //for (var b = 0; b <= 6; b++)
+                //{
+                //    var y2 = state.AddMove(b, opponent);
 
-                    //for (var c = 0; c <= 6; c++)
-                    //{
-                    //    var y3 = state.AddMove(c, player);
-                    //    var threadState = state.Copy();
+                //    //var threadState = state.Copy();
 
-                    //    //var task = new Task(async () => await EvaluateState(threadState, opponent, 3));
-                    //    //var task = EvaluateState(threadState, opponent, 3);
-                    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, 3).Result);
-                    //    task.Start();
-                    //    tasks.Add(task);
-                        
-                    //    //task.Wait();
+                //    //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, 2).Result);
+                //    //task.Start();
+                //    //tasks.Add(task);
 
-                    //    state.RemoveMove(c, y3);
-                    //}
+                //    for (var c = 0; c <= 6; c++)
+                //    {
+                //        var y3 = state.AddMove(c, player);
+                //        var threadState = state.Copy();
 
-                    state.RemoveMove(b, y2);
-                }
+                //        var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, 3).Result);
+                //        task.Start();
+                //        tasks.Add(task);
+
+                //        state.RemoveMove(c, y3);
+                //    }
+
+                //    state.RemoveMove(b, y2);
+                //}
 
                 state.RemoveMove(a, y1);
             }
