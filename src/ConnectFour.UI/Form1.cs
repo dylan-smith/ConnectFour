@@ -99,8 +99,8 @@ namespace ConnectFour.UI
             //ShowResults(results);
 
 
-            var playerOne = new BasicSearchStrategy();
-            var playerTwo = new BlockDoubleThreatStrategy();
+            _playerOne = new BasicSearchStrategy();
+            _playerTwo = new BlockDoubleThreatStrategy();
 
             WinningLines.Initialize();
             var state = new GameState();
@@ -132,18 +132,27 @@ namespace ConnectFour.UI
             state.AddMove(4, PlayerEnum.PlayerTwo);
             log.Moves.Add(4);
 
-            state.AddMove(0, PlayerEnum.PlayerOne);
-            log.Moves.Add(0);
-            state.AddMove(0, PlayerEnum.PlayerTwo);
-            log.Moves.Add(0);
-            state.AddMove(0, PlayerEnum.PlayerOne);
-            log.Moves.Add(0);
-            state.AddMove(0, PlayerEnum.PlayerTwo);
-            log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerOne);
+            //log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerTwo);
+            //log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerOne);
+            //log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerTwo);
+            //log.Moves.Add(0);
+
+            //state.AddMove(1, PlayerEnum.PlayerOne);
+            //log.Moves.Add(1);
+            //state.AddMove(1, PlayerEnum.PlayerTwo);
+            //log.Moves.Add(1);
+            //state.AddMove(1, PlayerEnum.PlayerOne);
+            //log.Moves.Add(1);
+            //state.AddMove(1, PlayerEnum.PlayerTwo);
+            //log.Moves.Add(1);
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 
-            playerOne.GenerateDatabase(state, whoGoesNext);
+            ((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
 
             while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
             {
@@ -151,11 +160,11 @@ namespace ConnectFour.UI
 
                 if (whoGoesNext == PlayerEnum.PlayerOne)
                 {
-                    nextMove = playerOne.MakeMove(state, whoGoesNext);
+                    nextMove = _playerOne.MakeMove(state, whoGoesNext);
                 }
                 else
                 {
-                    nextMove = playerTwo.MakeMove(state, whoGoesNext);
+                    nextMove = _playerTwo.MakeMove(state, whoGoesNext);
                 }
 
                 state.AddMove(nextMove, whoGoesNext);
@@ -379,10 +388,12 @@ namespace ConnectFour.UI
 
             if (_nextColor == Color.Red)
             {
+                Debugger.Break();
                 _playerOne.MakeMove(gameState, PlayerEnum.PlayerOne);
             }
             else
             {
+                Debugger.Break();
                 _playerTwo.MakeMove(gameState, PlayerEnum.PlayerTwo);
             }
         }
