@@ -8,9 +8,8 @@ namespace ConnectFour.Interfaces
     {
         private PlayerEnum[][] _board;
 
-        private Dictionary<PlayerEnum, int> _chipCounts = new Dictionary<PlayerEnum, int>(5);
-
-        private Dictionary<PlayerEnum, List<WinningLine>> _availableLines;
+        private int[] _chipCounts = new int[3];
+        private List<WinningLine>[] _availableLines;
 
         private int[] _nextEmptyRow;
 
@@ -21,8 +20,6 @@ namespace ConnectFour.Interfaces
 
         public GameState(PlayerEnum startState)
         {
-            InitializeChipCounts();
-
             _board = new PlayerEnum[7][];
 
             for (int x = 0; x < 7; x++)
@@ -34,31 +31,30 @@ namespace ConnectFour.Interfaces
                 }
             }
 
-            _chipCounts[startState] = 42;
+            _chipCounts[(int)startState] = 42;
 
             _nextEmptyRow = new int[7];
 
             _availableLines = InitializeAvailableLines();
         }
 
-        private Dictionary<PlayerEnum, List<WinningLine>> InitializeAvailableLines()
+        private List<WinningLine>[] InitializeAvailableLines()
         {
-            var result = new Dictionary<PlayerEnum, List<WinningLine>>
-            {
-                { PlayerEnum.PlayerOne, new List<WinningLine>() },
-                { PlayerEnum.PlayerTwo, new List<WinningLine>() }
-            };
+            var result = new List<WinningLine>[3];
+
+            result[(int)PlayerEnum.PlayerOne] = new List<WinningLine>();
+            result[(int)PlayerEnum.PlayerTwo] = new List<WinningLine>();
 
             foreach (var line in WinningLines.GetAllWinningLines())
             {
                 if (LineIsAvailable(line, PlayerEnum.PlayerOne))
                 {
-                    result[PlayerEnum.PlayerOne].Add(line);
+                    result[(int)PlayerEnum.PlayerOne].Add(line);
                 }
 
                 if (LineIsAvailable(line, PlayerEnum.PlayerTwo))
                 {
-                    result[PlayerEnum.PlayerTwo].Add(line);
+                    result[(int)PlayerEnum.PlayerTwo].Add(line);
                 }
             }
 
@@ -67,9 +63,9 @@ namespace ConnectFour.Interfaces
 
         private bool LineIsAvailable(WinningLine line, PlayerEnum whoAreYou)
         {
-            foreach (var p in line)
+            for (var i = 0; i < 4; i ++)
             {
-                var pos = GetPosition(p);
+                var pos = GetPosition(line[i]);
                 if (pos != whoAreYou && pos != PlayerEnum.Empty)
                 {
                     return false;
@@ -81,13 +77,11 @@ namespace ConnectFour.Interfaces
 
         public List<WinningLine> GetAvailableLines(PlayerEnum player)
         {
-            return _availableLines[player];
+            return _availableLines[(int)player];
         }
 
         public GameState(GameState source)
         {
-            InitializeChipCounts();
-
             _board = new PlayerEnum[7][];
             _nextEmptyRow = new int[7];
 
@@ -99,7 +93,7 @@ namespace ConnectFour.Interfaces
                     var sourcePlayer = source.GetPosition(x, y);
 
                     _board[x][y] = sourcePlayer;
-                    _chipCounts[sourcePlayer]++;
+                    _chipCounts[(int)sourcePlayer]++;
 
                     if (sourcePlayer == PlayerEnum.PlayerOne || sourcePlayer == PlayerEnum.PlayerTwo)
                     {
@@ -113,7 +107,7 @@ namespace ConnectFour.Interfaces
 
         public int GetChipCount(PlayerEnum player)
         {
-            return _chipCounts[player];
+            return _chipCounts[(int)player];
         }
 
         public PlayerEnum GetPosition(int x, int y)
@@ -150,15 +144,7 @@ namespace ConnectFour.Interfaces
 
         public bool AreMovesAvailable()
         {
-            for (int i = 0; i < 7; i++)
-            {
-                if (_nextEmptyRow[i] <= 5)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _chipCounts[(int)PlayerEnum.Empty] != 0;
         }
 
         public int AddMove(int move, PlayerEnum player)
@@ -170,9 +156,9 @@ namespace ConnectFour.Interfaces
                 throw new ArgumentException("Invalid Move - that column is full");
             }
 
-            _chipCounts[_board[move][y]]--;
+            _chipCounts[(int)PlayerEnum.Empty]--;
             _board[move][y] = player;
-            _chipCounts[player]++;
+            _chipCounts[(int)player]++;
             _nextEmptyRow[move]++;
 
             var lines = WinningLines.GetLinesByPoint(move, y);
@@ -180,7 +166,7 @@ namespace ConnectFour.Interfaces
 
             foreach (var line in lines)
             {
-                _availableLines[opponent].Remove(line);
+                _availableLines[(int)opponent].Remove(line);
             }
 
             return y;
@@ -189,9 +175,9 @@ namespace ConnectFour.Interfaces
         public void RemoveMove(int x, int y)
         {
             var player = _board[x][y];
-            _chipCounts[player]--;
+            _chipCounts[(int)player]--;
             _board[x][y] = PlayerEnum.Empty;
-            _chipCounts[PlayerEnum.Empty]++;
+            _chipCounts[(int)PlayerEnum.Empty]++;
 
             _nextEmptyRow[x] = y;
 
@@ -203,7 +189,7 @@ namespace ConnectFour.Interfaces
             {
                 if (LineIsAvailable(line, opponent))
                 {
-                    _availableLines[opponent].Add(line);
+                    _availableLines[(int)opponent].Add(line);
                 }
             }
         }
@@ -231,14 +217,6 @@ namespace ConnectFour.Interfaces
         public GameState Copy()
         {
             return new GameState(this);
-        }
-
-        private void InitializeChipCounts()
-        {
-            foreach (var x in Enum.GetValues(typeof(PlayerEnum)))
-            {
-                _chipCounts.Add((PlayerEnum)x, 0);
-            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace ConnectFour.Strategy.BasicSearch
     {
         private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> _decisions;
         private bool _generateDecisions = false;
-        private const int STORAGE_DEPTH = 24;
+        private const int STORAGE_DEPTH = 36;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
@@ -23,6 +23,7 @@ namespace ConnectFour.Strategy.BasicSearch
 
             _generateDecisions = true;
             var tasks = new List<Task>();
+            var depth = state.GetChipCount(PlayerEnum.PlayerOne) + state.GetChipCount(PlayerEnum.PlayerTwo);
 
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] STARTING\n");
 
@@ -32,7 +33,7 @@ namespace ConnectFour.Strategy.BasicSearch
 
                 var threadState = state.Copy();
 
-                var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, 1).Result);
+                var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
                 task.Start();
                 tasks.Add(task);
 
@@ -69,15 +70,13 @@ namespace ConnectFour.Strategy.BasicSearch
                 var done = Task.WaitAny(tasks.ToArray());
                 tasks.RemoveAt(done);
 
-                lock (_decisions)
-                {
-                    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } left)\n");
-                }
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } left)\n");
             }
 
             _generateDecisions = false;
 
             WriteDecisionsToDatabase(_decisions);
+            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] DONE\n");
         }
 
         private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> ReadDecisionsFromDatabase()
@@ -174,7 +173,6 @@ namespace ConnectFour.Strategy.BasicSearch
                 var y = state.AddMove(m, whoAreYou);
 
                 var task = EvaluateState(state, GetOpponent(whoAreYou), 1);
-                //task.Wait();
                 var winner = task.Result;
 
                 state.RemoveMove(m, y);
@@ -203,19 +201,21 @@ namespace ConnectFour.Strategy.BasicSearch
 
         private async Task<PlayerEnum> EvaluateState(GameState state, PlayerEnum whoAreYou, int depth)
         {
+            if (depth == 42)
+            {
+                return PlayerEnum.Stalemate;
+            }
+
             if (CheckDecision(state, depth))
             {
                 var decision = GetDecision(state);
 
                 while (decision == PlayerEnum.GameNotDone)
                 {
-                    //System.Diagnostics.Debug.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] WAITING ON ({EncodeState(state).state1}, {EncodeState(state).state2})");
                     await Task.Yield();
-                    //await Task.Delay(1000);
                     decision = GetDecision(state);
                 }
 
-                //System.Diagnostics.Debug.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] WAIT DONE ({EncodeState(state).state1}, {EncodeState(state).state2})");
                 return decision;
             }
 
@@ -298,25 +298,9 @@ namespace ConnectFour.Strategy.BasicSearch
             {
                 var encoding = EncodeState(state);
 
-                //if (_decisions.Count % 100000 == 0)
-                //{
-                //    lock (_decisions)
-                //    {
-                //        File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_decisions.Count}\n");
-                //    }
-                //}
-
                 if (_generateDecisions)
                 {
                     var result = _decisions.TryAdd((encoding.state1, encoding.state2), PlayerEnum.GameNotDone);
-
-                    //if (result)
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] ({encoding.state1}, {encoding.state2}) ADDED");
-                    //} else
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] ({encoding.state1}, {encoding.state2}) WAITING");
-                    //}
 
                     return !result;
                 }
@@ -333,18 +317,8 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             if (_generateDecisions && depth <= STORAGE_DEPTH)
             {
-                //if (_decisions.Count % 100000 == 0)
-                //{
-                //    lock (_decisions)
-                //    {
-                //        File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {_decisions.Count}\n");
-                //    }
-                //}
-
                 var encoding = EncodeState(state);
                 _decisions.AddOrUpdate((encoding.state1, encoding.state2), winner, (a, b) => winner);
-
-                //System.Diagnostics.Debug.WriteLine($"[{System.Threading.Thread.CurrentThread.ManagedThreadId}] ({encoding.state1}, {encoding.state2}) UPDATED TO {winner}");
             }
         }
 
@@ -430,11 +404,11 @@ namespace ConnectFour.Strategy.BasicSearch
 
         private Point FindEmptyPositionInLine(WinningLine line, GameState gameState)
         {
-            foreach (var p in line)
+            for (var i = 0; i < 4; i++)
             {
-                if (gameState.GetPosition(p) == PlayerEnum.Empty)
+                if (gameState.GetPosition(line[i]) == PlayerEnum.Empty)
                 {
-                    return p;
+                    return line[i];
                 }
             }
 
@@ -559,11 +533,11 @@ namespace ConnectFour.Strategy.BasicSearch
 
         private Point FindMissingPositionInLine(WinningLine line, GameState gameState)
         {
-            foreach (var p in line)
+            for (var i = 0; i < 4; i++)
             {
-                if (gameState.GetPosition(p) == PlayerEnum.Empty)
+                if (gameState.GetPosition(line[i]) == PlayerEnum.Empty)
                 {
-                    return p;
+                    return line[i];
                 }
             }
 
@@ -574,9 +548,9 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             var result = 0;
 
-            foreach (var p in line)
+            for (var i = 0; i < 4; i++)
             {
-                if (gameState.GetPosition(p) == whoAreYou)
+                if (gameState.GetPosition(line[i]) == whoAreYou)
                 {
                     result++;
                 }
