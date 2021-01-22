@@ -123,10 +123,10 @@ namespace ConnectFour.UI
             log.Moves.Add(6);
             state.AddMove(0, PlayerEnum.PlayerTwo);
             log.Moves.Add(0);
-            //state.AddMove(1, PlayerEnum.PlayerOne);
-            //log.Moves.Add(1);
-            //state.AddMove(2, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(2);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            log.Moves.Add(1);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+            log.Moves.Add(2);
             //state.AddMove(3, PlayerEnum.PlayerOne);
             //log.Moves.Add(3);
             //state.AddMove(4, PlayerEnum.PlayerTwo);

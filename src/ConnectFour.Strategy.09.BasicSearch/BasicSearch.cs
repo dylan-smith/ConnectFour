@@ -12,14 +12,14 @@ namespace ConnectFour.Strategy.BasicSearch
 {
     public class BasicSearchStrategy : IStrategy
     {
-        private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> _decisions;
+        private ConcurrentDictionary<long, PlayerEnum> _decisions;
         private bool _generateDecisions = false;
-        private const int STORAGE_DEPTH = 32;
+        private const int STORAGE_DEPTH = 34;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
             var opponent = GetOpponent(player);
-            _decisions = new ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum>();
+            _decisions = new ConcurrentDictionary<long, PlayerEnum>();
 
             _generateDecisions = true;
             var tasks = new List<Task>();
@@ -79,30 +79,30 @@ namespace ConnectFour.Strategy.BasicSearch
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] DONE\n");
         }
 
-        private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> ReadDecisionsFromDatabase()
+        private ConcurrentDictionary<long, PlayerEnum> ReadDecisionsFromDatabase()
         {
             var db = new SqlServerDatabaseLayer("Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;");
 
             var table = db.GetDataTable("SELECT * FROM Decisions");
 
-            var result = new ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum>();
+            var result = new ConcurrentDictionary<long, PlayerEnum>();
 
             foreach (var row in table)
             {
-                result.TryAdd((Convert.ToUInt64((long)row["State1"]), Convert.ToUInt64((long)row["State2"])), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
+                result.TryAdd(Convert.ToInt64((long)row["State1"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
             }
 
             return result;
         }
 
-        private void WriteDecisionsToDatabase(ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> decisions)
+        private void WriteDecisionsToDatabase(ConcurrentDictionary<long, PlayerEnum> decisions)
         {
             var dataTable = CreateDecisionsTable();
             var db = new SqlServerDatabaseLayer("Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;");
 
             foreach (var decision in decisions)
             {
-                InsertRowToDecisionsTable(decision.Key.state1, decision.Key.state2, decision.Value, dataTable);
+                InsertRowToDecisionsTable(decision.Key, decision.Value, dataTable);
             }
 
             db.ExecuteNonQuery("TRUNCATE TABLE Decisions");
@@ -113,19 +113,19 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             var result = new DataTable("Decisions");
 
-            result.Columns.Add("State1", typeof(ulong));
-            result.Columns.Add("State2", typeof(ulong));
+            result.Columns.Add("State1", typeof(long));
+            result.Columns.Add("State2", typeof(long));
             result.Columns.Add("Winner", typeof(byte));
 
             return result;
         }
 
-        private void InsertRowToDecisionsTable(ulong state1, ulong state2, PlayerEnum winner, DataTable decisionsTable)
+        private void InsertRowToDecisionsTable(long state, PlayerEnum winner, DataTable decisionsTable)
         {
             var newRow = decisionsTable.NewRow();
 
-            newRow["State1"] = state1;
-            newRow["State2"] = state2;
+            newRow["State1"] = state;
+            newRow["State2"] = 0L;
             newRow["Winner"] = (byte)winner;
 
             decisionsTable.Rows.Add(newRow);
@@ -289,7 +289,7 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             var encoding = EncodeState(state);
 
-            return _decisions[(encoding.state1, encoding.state2)];
+            return _decisions[encoding];
         }
 
         private bool CheckDecision(GameState state, int depth)
@@ -300,13 +300,13 @@ namespace ConnectFour.Strategy.BasicSearch
 
                 if (_generateDecisions)
                 {
-                    var result = _decisions.TryAdd((encoding.state1, encoding.state2), PlayerEnum.GameNotDone);
+                    var result = _decisions.TryAdd(encoding, PlayerEnum.GameNotDone);
 
                     return !result;
                 }
                 else
                 {
-                    return _decisions.ContainsKey((encoding.state1, encoding.state2));
+                    return _decisions.ContainsKey(encoding);
                 }
             }
 
@@ -318,67 +318,51 @@ namespace ConnectFour.Strategy.BasicSearch
             if (_generateDecisions && depth <= STORAGE_DEPTH)
             {
                 var encoding = EncodeState(state);
-                _decisions.AddOrUpdate((encoding.state1, encoding.state2), winner, (a, b) => winner);
+                _decisions.AddOrUpdate(encoding, winner, (a, b) => winner);
             }
         }
 
-        private (ulong state1, ulong state2) EncodeState(GameState state)
+        private long EncodeState(GameState state)
         {
-            var state1 = (ulong)0;
-            var state2 = (ulong)0;
-            var statea = (ulong)0;
-            var stateb = (ulong)0;
+            var state1 = 0L;
+            var state2 = 0L;
 
-            for (var y = 0; y <= 2; y++)
+            for (var x = 0; x <= 6; x++)
             {
-                var yShift = y * 14;
+                var x2 = 6 - x;
 
-                for (var x = 0; x <= 6; x++)
+                var empty1 = (long)state.FindFirstEmptyRow(x) + 1;
+                var empty2 = (long)state.FindFirstEmptyRow(x2) + 1;
+
+                var shift = 42 + (x * 3);
+                var shift2 = 42 + (x2 * 3);
+                var mask = empty1 << shift;
+                var mask2 = empty2 << shift2;
+
+                state1 |= mask;
+                state2 |= mask2;
+
+                for (var y = 0; y <= 5; y++)
                 {
-                    var x2 = 6 - x;
-                    var pos = (ulong)state.GetPosition(x, y);
-                    var shift = (x * 2) + yShift;
-                    var shift2 = (x2 * 2) + yShift;
-                    var mask = pos << shift;
-                    var mask2 = pos << shift2;
+                    var yShift = y * 7;
+
+                    var pos = (long)state.GetPosition(x, y);
+                    shift = x + yShift;
+                    shift2 = x2 + yShift;
+                    mask = pos << shift;
+                    mask2 = pos << shift2;
 
                     state1 |= mask;
-                    statea |= mask2;
+                    state2 |= mask2;
                 }
             }
 
-            for (var y = 3; y <= 5; y++)
+            if (state1 <= state2)
             {
-                var yShift = (y - 3) * 14;
-
-                for (var x = 0; x <= 6; x++)
-                {
-                    var x2 = 6 - x;
-                    var pos = (ulong)state.GetPosition(x, y);
-                    var shift = (x * 2) + yShift;
-                    var shift2 = (x2 * 2) + yShift;
-                    var mask = pos << shift;
-                    var mask2 = pos << shift2;
-
-                    state2 |= mask;
-                    stateb |= mask2;
-                }
+                return state1;
             }
 
-            if (statea < state1)
-            {
-                return (statea, stateb);
-            }
-
-            if (statea == state1)
-            {
-                if (stateb < state2)
-                {
-                    return (statea, stateb);
-                }
-            }
-
-            return (state1, state2);
+            return state2;
         }
 
         private int FindDoubleThreatMoves(GameState state, int[] safeMoves, PlayerEnum whoAreYou)
