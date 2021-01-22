@@ -14,7 +14,7 @@ namespace ConnectFour.Strategy.BasicSearch
     {
         private ConcurrentDictionary<(ulong state1, ulong state2), PlayerEnum> _decisions;
         private bool _generateDecisions = false;
-        private const int STORAGE_DEPTH = 36;
+        private const int STORAGE_DEPTH = 32;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
@@ -31,36 +31,36 @@ namespace ConnectFour.Strategy.BasicSearch
             {
                 var y1 = state.AddMove(a, player);
 
-                var threadState = state.Copy();
+                //var threadState = state.Copy();
 
-                var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
-                task.Start();
-                tasks.Add(task);
+                //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
+                //task.Start();
+                //tasks.Add(task);
 
-                //for (var b = 0; b <= 6; b++)
-                //{
-                //    var y2 = state.AddMove(b, opponent);
+                for (var b = 0; b <= 6; b++)
+                {
+                    var y2 = state.AddMove(b, opponent);
 
-                //    //var threadState = state.Copy();
+                    var threadState = state.Copy();
 
-                //    //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, 2).Result);
-                //    //task.Start();
-                //    //tasks.Add(task);
+                    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
+                    task.Start();
+                    tasks.Add(task);
 
-                //    for (var c = 0; c <= 6; c++)
-                //    {
-                //        var y3 = state.AddMove(c, player);
-                //        var threadState = state.Copy();
+                    //for (var c = 0; c <= 6; c++)
+                    //{
+                    //    var y3 = state.AddMove(c, player);
+                    //    var threadState = state.Copy();
 
-                //        var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, 3).Result);
-                //        task.Start();
-                //        tasks.Add(task);
+                    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
+                    //    task.Start();
+                    //    tasks.Add(task);
 
-                //        state.RemoveMove(c, y3);
-                //    }
+                    //    state.RemoveMove(c, y3);
+                    //}
 
-                //    state.RemoveMove(b, y2);
-                //}
+                    state.RemoveMove(b, y2);
+                }
 
                 state.RemoveMove(a, y1);
             }
@@ -326,6 +326,8 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             var state1 = (ulong)0;
             var state2 = (ulong)0;
+            var statea = (ulong)0;
+            var stateb = (ulong)0;
 
             for (var y = 0; y <= 2; y++)
             {
@@ -333,11 +335,15 @@ namespace ConnectFour.Strategy.BasicSearch
 
                 for (var x = 0; x <= 6; x++)
                 {
+                    var x2 = 6 - x;
                     var pos = (ulong)state.GetPosition(x, y);
                     var shift = (x * 2) + yShift;
+                    var shift2 = (x2 * 2) + yShift;
                     var mask = pos << shift;
+                    var mask2 = pos << shift2;
 
                     state1 |= mask;
+                    statea |= mask2;
                 }
             }
 
@@ -347,11 +353,28 @@ namespace ConnectFour.Strategy.BasicSearch
 
                 for (var x = 0; x <= 6; x++)
                 {
+                    var x2 = 6 - x;
                     var pos = (ulong)state.GetPosition(x, y);
                     var shift = (x * 2) + yShift;
+                    var shift2 = (x2 * 2) + yShift;
                     var mask = pos << shift;
+                    var mask2 = pos << shift2;
 
                     state2 |= mask;
+                    stateb |= mask2;
+                }
+            }
+
+            if (statea < state1)
+            {
+                return (statea, stateb);
+            }
+
+            if (statea == state1)
+            {
+                if (stateb < state2)
+                {
+                    return (statea, stateb);
                 }
             }
 
