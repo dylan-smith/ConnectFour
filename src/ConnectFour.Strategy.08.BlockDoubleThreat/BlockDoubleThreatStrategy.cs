@@ -65,7 +65,7 @@ namespace ConnectFour.Strategy.BlockDoubleThreat
             {
                 var y = gameState.AddMove(m, whoAreYou);
                 var isDoubleThreat = DoesDoubleThreatExist(gameState, whoAreYou);
-                gameState.RemoveMove(m, y);
+                gameState.RemoveMove(m, y, whoAreYou);
 
                 if (isDoubleThreat)
                 {
@@ -185,7 +185,7 @@ namespace ConnectFour.Strategy.BlockDoubleThreat
 
             for (int col = 0; col < 7; col++)
             {
-                if (gameState.FindFirstEmptyRow(col) != -1)
+                if (gameState.FindFirstEmptyRow(col) != 6)
                 {
                     if (CheckIfMoveIsSafe(gameState, col, whoAreYou))
                     {
@@ -203,7 +203,7 @@ namespace ConnectFour.Strategy.BlockDoubleThreat
 
             for (int col = 0; col < 7; col++)
             {
-                if (gameState.FindFirstEmptyRow(col) != -1)
+                if (gameState.FindFirstEmptyRow(col) != 6)
                 {
                     result.Add(col);
                 }
@@ -219,7 +219,7 @@ namespace ConnectFour.Strategy.BlockDoubleThreat
 
             var winningMove = FindWinningMove(gameState, opponent);
 
-            gameState.RemoveMove(col, y);
+            gameState.RemoveMove(col, y, whoAreYou);
 
             if (winningMove == -1)
             {

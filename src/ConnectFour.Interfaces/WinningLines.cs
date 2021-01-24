@@ -420,6 +420,11 @@ namespace ConnectFour.Interfaces
             lines[68][1] = new Point(2, 3);
             lines[68][2] = new Point(1, 4);
             lines[68][3] = new Point(0, 5);
+
+            for (int i = 0; i < 69; i++)
+            {
+                lines[i].Initialize();
+            }
         }
     }
 }

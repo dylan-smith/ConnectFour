@@ -152,7 +152,7 @@ namespace ConnectFour.UI
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 
-            ((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
+            //((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
 
             while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
             {
@@ -400,7 +400,7 @@ namespace ConnectFour.UI
 
         private GameState CreateGameStateFromGameLog()
         {
-            var result = new GameState(PlayerEnum.Empty);
+            var result = new GameState();
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 

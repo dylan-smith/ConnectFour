@@ -6,34 +6,29 @@ namespace ConnectFour.Interfaces
 {
     public class GameState
     {
-        private PlayerEnum[][] _board;
+        //private PlayerEnum[][] _board;
+        private long _state = 0L;
+        private long _playerOneChips = 0L;
+        private long _playerTwoChips = 0L;
 
-        private int[] _chipCounts = new int[3];
+        //private int[] _chipCounts = new int[3];
         private List<WinningLine>[] _availableLines;
 
-        private int[] _nextEmptyRow;
+        //private int[] _nextEmptyRow;
+
+        private const long ONES = 0b_111_111_111_111_111_111_111_1111111_1111111_1111111_1111111_1111111_1111111;
+        private long[] ZERO_OUT_NEXT_EMPTY = new long[7];
+        // private const long PLAYER_ONE_CHIPS_MASK = 0b_1111111_1111111_1111111_1111111_1111111_1111111;
 
         public GameState()
-            : this(PlayerEnum.Empty)
         {
-        }
-
-        public GameState(PlayerEnum startState)
-        {
-            _board = new PlayerEnum[7][];
-
-            for (int x = 0; x < 7; x++)
-            {
-                _board[x] = new PlayerEnum[6];
-                for (int y = 0; y < 6; y++)
-                {
-                    _board[x][y] = startState;
-                }
-            }
-
-            _chipCounts[(int)startState] = 42;
-
-            _nextEmptyRow = new int[7];
+            ZERO_OUT_NEXT_EMPTY[0] = 0b_111_111_111_111_111_111_000_1111111_1111111_1111111_1111111_1111111_1111111;
+            ZERO_OUT_NEXT_EMPTY[1] = 0b_111_111_111_111_111_000_111_1111111_1111111_1111111_1111111_1111111_1111111;
+            ZERO_OUT_NEXT_EMPTY[2] = 0b_111_111_111_111_000_111_111_1111111_1111111_1111111_1111111_1111111_1111111;
+            ZERO_OUT_NEXT_EMPTY[3] = 0b_111_111_111_000_111_111_111_1111111_1111111_1111111_1111111_1111111_1111111;
+            ZERO_OUT_NEXT_EMPTY[4] = 0b_111_111_000_111_111_111_111_1111111_1111111_1111111_1111111_1111111_1111111;
+            ZERO_OUT_NEXT_EMPTY[5] = 0b_111_000_111_111_111_111_111_1111111_1111111_1111111_1111111_1111111_1111111;
+            ZERO_OUT_NEXT_EMPTY[6] = 0b_000_111_111_111_111_111_111_1111111_1111111_1111111_1111111_1111111_1111111;
 
             _availableLines = InitializeAvailableLines();
         }
@@ -63,7 +58,7 @@ namespace ConnectFour.Interfaces
 
         private bool LineIsAvailable(WinningLine line, PlayerEnum whoAreYou)
         {
-            for (var i = 0; i < 4; i ++)
+            for (var i = 0; i < 4; i++)
             {
                 var pos = GetPosition(line[i]);
                 if (pos != whoAreYou && pos != PlayerEnum.Empty)
@@ -75,49 +70,77 @@ namespace ConnectFour.Interfaces
             return true;
         }
 
-        public List<WinningLine> GetAvailableLines(PlayerEnum player)
-        {
-            return _availableLines[(int)player];
-        }
-
         public GameState(GameState source)
         {
-            _board = new PlayerEnum[7][];
-            _nextEmptyRow = new int[7];
+            _state = source._state;
+            _playerOneChips = source._playerOneChips;
+            _playerTwoChips = source._playerTwoChips;
 
-            for (int x = 0; x < 7; x++)
-            {
-                _board[x] = new PlayerEnum[6];
-                for (int y = 0; y < 6; y++)
-                {
-                    var sourcePlayer = source.GetPosition(x, y);
-
-                    _board[x][y] = sourcePlayer;
-                    _chipCounts[(int)sourcePlayer]++;
-
-                    if (sourcePlayer == PlayerEnum.PlayerOne || sourcePlayer == PlayerEnum.PlayerTwo)
-                    {
-                        _nextEmptyRow[x] = y + 1;
-                    }
-                }
-            }
+            ZERO_OUT_NEXT_EMPTY[0] = 0b_111_111_111_111_111_111_000___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+            ZERO_OUT_NEXT_EMPTY[1] = 0b_111_111_111_111_111_000_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+            ZERO_OUT_NEXT_EMPTY[2] = 0b_111_111_111_111_000_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+            ZERO_OUT_NEXT_EMPTY[3] = 0b_111_111_111_000_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+            ZERO_OUT_NEXT_EMPTY[4] = 0b_111_111_000_111_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+            ZERO_OUT_NEXT_EMPTY[5] = 0b_111_000_111_111_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+            ZERO_OUT_NEXT_EMPTY[6] = 0b_000_111_111_111_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
 
             _availableLines = InitializeAvailableLines();
         }
 
-        public int GetChipCount(PlayerEnum player)
+        public long GetEncoding()
         {
-            return _chipCounts[(int)player];
+            // TODO: Symmetry check
+            var symmetry = GetSymmetryState();
+
+            if (symmetry < _state)
+            {
+                return symmetry;
+            }
+
+            return _state;
+        }
+
+        private long GetSymmetryState()
+        {
+            return _state;
         }
 
         public PlayerEnum GetPosition(int x, int y)
         {
-            return _board[x][y];
+            // TODO: Might be able to skip this check if we know we're only checking non-empty positions
+            var empty = FindFirstEmptyRow(x);
+
+            if (y >= empty)
+            {
+                return PlayerEnum.Empty;
+            }
+
+            var shift = y * 7 + x;
+            var mask = 1L << shift;
+
+            var result = _state & mask;
+
+            if (result > 0)
+            {
+                return PlayerEnum.PlayerOne;
+            }
+
+            return PlayerEnum.PlayerTwo;
         }
 
         public PlayerEnum GetPosition(Point p)
         {
-            return _board[p.X][p.Y];
+            return GetPosition(p.X, p.Y);
+        }
+
+        public bool IsEmpty(Point p)
+        {
+            return IsEmpty(p.X, p.Y);
+        }
+
+        private bool IsEmpty(int x, int y)
+        {
+            return y >= FindFirstEmptyRow(x);
         }
 
         public PlayerEnum CheckForWinner()
@@ -142,24 +165,37 @@ namespace ConnectFour.Interfaces
             }
         }
 
+        public List<WinningLine> GetAvailableLines(PlayerEnum player)
+        {
+            return _availableLines[(int)player];
+        }
+
         public bool AreMovesAvailable()
         {
-            return _chipCounts[(int)PlayerEnum.Empty] != 0;
+            var empty = _state >> 42;
+
+            return empty != 0b110_110_110_110_110_110_110;
         }
 
         public int AddMove(int move, PlayerEnum player)
         {
-            var y = _nextEmptyRow[move];
+            var y = FindFirstEmptyRow(move);
 
             if (y > 5)
             {
                 throw new ArgumentException("Invalid Move - that column is full");
             }
 
-            _chipCounts[(int)PlayerEnum.Empty]--;
-            _board[move][y] = player;
-            _chipCounts[(int)player]++;
-            _nextEmptyRow[move]++;
+            SetFirstEmptyRow(move, y + 1);
+
+            if (player == PlayerEnum.PlayerOne)
+            {
+                SetPlayerOneMove(move, y);
+            }
+            else
+            {
+                SetPlayerTwoMove(move, y);
+            }
 
             var lines = WinningLines.GetLinesByPoint(move, y);
             var opponent = GetOpponent(player);
@@ -172,17 +208,52 @@ namespace ConnectFour.Interfaces
             return y;
         }
 
+        private void SetPlayerOneMove(int x, int y)
+        {
+            var shift = y * 7 + x;
+            var mask = 1L << shift;
+
+            _state |= mask;
+            _playerOneChips |= mask;
+        }
+
+        private void SetPlayerTwoMove(int x, int y)
+        {
+            var shift = y * 7 + x;
+            var mask = 1L << shift;
+
+            _playerTwoChips |= mask;
+        }
+
+        private void SetPositionToZero(int x, int y)
+        {
+            var shift = y * 7 + x;
+            var mask = (1L << shift) ^ ONES;
+
+            _state &= mask;
+            _playerOneChips &= mask;
+            _playerTwoChips &= mask;
+        }
+
+        private void SetFirstEmptyRow(int x, int y)
+        {
+            var mask = (long)y << (42 + x * 3);
+            _state = _state & ZERO_OUT_NEXT_EMPTY[x] | mask;
+        }
+
         public void RemoveMove(int x, int y)
         {
-            var player = _board[x][y];
-            _chipCounts[(int)player]--;
-            _board[x][y] = PlayerEnum.Empty;
-            _chipCounts[(int)PlayerEnum.Empty]++;
+            SetFirstEmptyRow(x, y);
+            SetPositionToZero(x, y);
+        }
 
-            _nextEmptyRow[x] = y;
+        public void RemoveMove(int x, int y, PlayerEnum player)
+        {
+            SetFirstEmptyRow(x, y);
+            SetPositionToZero(x, y);
 
             var lines = WinningLines.GetLinesByPoint(x, y);
-            
+
             var opponent = GetOpponent(player);
 
             foreach (var line in lines)
@@ -192,6 +263,50 @@ namespace ConnectFour.Interfaces
                     _availableLines[(int)opponent].Add(line);
                 }
             }
+        }
+
+        public int CanCompleteLine(WinningLine line, PlayerEnum player)
+        {
+            var chips = 0L;
+
+            if (player == PlayerEnum.PlayerOne)
+            {
+                chips = _playerOneChips;
+            }
+            else
+            {
+                chips = _playerTwoChips;
+            }
+
+            var result = chips & line.Mask;
+
+            if (result == line.SpotOne)
+            {
+                if (FindFirstEmptyRow(line[0].X) == line[0].Y)
+                {
+                    return line[0].X;
+                }
+            } else if (result == line.SpotTwo)
+            {
+                if (FindFirstEmptyRow(line[1].X) == line[1].Y)
+                {
+                    return line[1].X;
+                }
+            } else if (result == line.SpotThree)
+            {
+                if (FindFirstEmptyRow(line[2].X) == line[2].Y)
+                {
+                    return line[2].X;
+                }
+            } else if (result == line.SpotFour)
+            {
+                if (FindFirstEmptyRow(line[3].X) == line[3].Y)
+                {
+                    return line[3].X;
+                }
+            }
+
+            return -1;
         }
 
         private PlayerEnum GetOpponent(PlayerEnum whoAreYou)
@@ -206,17 +321,62 @@ namespace ConnectFour.Interfaces
 
         public int FindFirstEmptyRow(int column)
         {
-            if (_nextEmptyRow[column] <= 5)
-            {
-                return _nextEmptyRow[column];
-            }
+            var shift = 42 + column * 3;
 
-            return -1;
+            return (int)((_state >> shift) & 0b_111);
         }
 
         public GameState Copy()
         {
             return new GameState(this);
+        }
+
+        public int GetTotalMoves()
+        {
+            var result = 0;
+
+            for (var x = 0; x <= 6; x++)
+            {
+                result += FindFirstEmptyRow(x);
+            }
+
+            return result;
+        }
+
+        public override string ToString()
+        {
+            var binaryString = Convert.ToString(_state, 2);
+
+            binaryString = binaryString.PadLeft(63, '0');
+
+            var result = _state.ToString() + Environment.NewLine;
+            result += $"{binaryString.Substring(0, 3)}_{binaryString.Substring(3, 3)}_{binaryString.Substring(6, 3)}_{binaryString.Substring(9, 3)}_{binaryString.Substring(12, 3)}_{binaryString.Substring(15, 3)}_{binaryString.Substring(18, 3)}_{binaryString.Substring(21, 7)}_{binaryString.Substring(28, 7)}_{binaryString.Substring(35, 7)}_{binaryString.Substring(42, 7)}_{binaryString.Substring(49, 7)}_{binaryString.Substring(56, 7)}";
+            result += Environment.NewLine;
+
+            for (var y = 5; y >= 0; y--)
+            {
+                result += Environment.NewLine;
+
+                for (var x = 0; x <= 6; x++)
+                {
+                    if (GetPosition(x, y) == PlayerEnum.Empty)
+                    {
+                        result += "x";
+                    }
+
+                    if (GetPosition(x, y) == PlayerEnum.PlayerOne)
+                    {
+                        result += "1";
+                    }
+
+                    if (GetPosition(x, y) == PlayerEnum.PlayerTwo)
+                    {
+                        result += "0";
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }
