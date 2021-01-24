@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -320,49 +319,6 @@ namespace ConnectFour.Strategy.BasicSearch
             }
         }
 
-        //private long EncodeState(GameState state)
-        //{
-        //    var state1 = 0L;
-        //    var state2 = 0L;
-
-        //    for (var x = 0; x <= 6; x++)
-        //    {
-        //        var x2 = 6 - x;
-
-        //        var empty1 = (long)state.FindFirstEmptyRow(x) + 1;
-        //        var empty2 = (long)state.FindFirstEmptyRow(x2) + 1;
-
-        //        var shift = 42 + (x * 3);
-        //        var shift2 = 42 + (x2 * 3);
-        //        var mask = empty1 << shift;
-        //        var mask2 = empty2 << shift2;
-
-        //        state1 |= mask;
-        //        state2 |= mask2;
-
-        //        for (var y = 0; y <= 5; y++)
-        //        {
-        //            var yShift = y * 7;
-
-        //            var pos = (long)state.GetPosition(x, y);
-        //            shift = x + yShift;
-        //            shift2 = x2 + yShift;
-        //            mask = pos << shift;
-        //            mask2 = pos << shift2;
-
-        //            state1 |= mask;
-        //            state2 |= mask2;
-        //        }
-        //    }
-
-        //    if (state1 <= state2)
-        //    {
-        //        return state1;
-        //    }
-
-        //    return state2;
-        //}
-
         private int FindDoubleThreatMoves(GameState state, int[] safeMoves, PlayerEnum whoAreYou)
         {
             foreach (var m in safeMoves)
@@ -382,40 +338,25 @@ namespace ConnectFour.Strategy.BasicSearch
 
         private bool DoesDoubleThreatExist(GameState state, PlayerEnum whoAreYou)
         {
-            var threats = FindThreatCount(state, whoAreYou);
-
-            return threats > 1;
-        }
-
-        private int FindThreatCount(GameState state, PlayerEnum whoAreYou)
-        {
-            var threatCount = 0;
+            var firstThreat = -1;
 
             foreach (var line in state.GetAvailableLines(whoAreYou))
             {
                 var move = state.CanCompleteLine(line, whoAreYou);
 
+                if (move != -1 && firstThreat >= 0)
+                {
+                    return true;
+                }
+
                 if (move != -1)
                 {
-                    threatCount++;
+                    firstThreat = move;
                 }
             }
 
-            return threatCount;
+            return false;
         }
-
-        //private Point FindEmptyPositionInLine(WinningLine line, GameState gameState)
-        //{
-        //    for (var i = 0; i < 4; i++)
-        //    {
-        //        if (gameState.IsEmpty(line[i]))
-        //        {
-        //            return line[i];
-        //        }
-        //    }
-
-        //    throw new ArgumentException("Line didn't contain any empty positions");
-        //}
 
         private int[] FindSafeMoves(GameState gameState, PlayerEnum whoAreYou)
         {
@@ -503,55 +444,5 @@ namespace ConnectFour.Strategy.BasicSearch
 
             return -1;
         }
-
-        //private int CanCompleteLine(WinningLine line, GameState gameState, PlayerEnum whoAreYou)
-        //{
-        //    var count = CountPositionsInLine(line, gameState, whoAreYou);
-
-        //    if (count < 3)
-        //    {
-        //        return -1;
-        //    }
-
-        //    var winningPosition = FindMissingPositionInLine(line, gameState);
-
-        //    if (winningPosition.X != -1)
-        //    {
-        //        if (gameState.FindFirstEmptyRow(winningPosition.X) == winningPosition.Y)
-        //        {
-        //            return winningPosition.X;
-        //        }
-        //    }
-
-        //    return -1;
-        //}
-
-        //private Point FindMissingPositionInLine(WinningLine line, GameState gameState)
-        //{
-        //    for (var i = 0; i < 4; i++)
-        //    {
-        //        if (gameState.IsEmpty(line[i]))
-        //        {
-        //            return line[i];
-        //        }
-        //    }
-
-        //    return new Point(-1, -1);
-        //}
-
-        //private int CountPositionsInLine(WinningLine line, GameState gameState, PlayerEnum whoAreYou)
-        //{
-        //    var result = 0;
-
-        //    for (var i = 0; i < 4; i++)
-        //    {
-        //        if (gameState.GetPosition(line[i]) == whoAreYou)
-        //        {
-        //            result++;
-        //        }
-        //    }
-
-        //    return result;
-        //}
     }
 }
