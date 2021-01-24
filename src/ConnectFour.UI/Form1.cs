@@ -190,17 +190,12 @@ namespace ConnectFour.UI
 
             ShowResults(results);
 
-
-
             //var start = new Stopwatch();
             //start.Start();
             //strat.MakeMove(state, PlayerEnum.PlayerOne);
             //var end = start.ElapsedMilliseconds;
 
             //MessageBox.Show("Done! " + end.ToString());
-
-
-            
         }
 
         private void ShowResults(SimulationResult results)
