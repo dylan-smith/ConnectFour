@@ -319,7 +319,7 @@ namespace ConnectFour.Strategy.BasicSearch
             }
         }
 
-        private int FindDoubleThreatMoves(GameState state, int[] safeMoves, PlayerEnum whoAreYou)
+        public int FindDoubleThreatMoves(GameState state, int[] safeMoves, PlayerEnum whoAreYou)
         {
             foreach (var m in safeMoves)
             {
@@ -358,7 +358,7 @@ namespace ConnectFour.Strategy.BasicSearch
             return false;
         }
 
-        private int[] FindSafeMoves(GameState gameState, PlayerEnum whoAreYou)
+        public int[] FindSafeMoves(GameState gameState, PlayerEnum whoAreYou)
         {
             var result = new List<int>();
 
@@ -403,7 +403,7 @@ namespace ConnectFour.Strategy.BasicSearch
             return winningMove == -1;
         }
 
-        private int FindBlockingMove(GameState state, PlayerEnum whoAreYou)
+        public int FindBlockingMove(GameState state, PlayerEnum whoAreYou)
         {
             var opponent = GetOpponent(whoAreYou);
 
@@ -430,7 +430,7 @@ namespace ConnectFour.Strategy.BasicSearch
             return PlayerEnum.PlayerOne;
         }
 
-        private int FindWinningMove(GameState state, PlayerEnum whoAreYou)
+        public int FindWinningMove(GameState state, PlayerEnum whoAreYou)
         {
             foreach (var line in state.GetAvailableLines(whoAreYou))
             {

@@ -152,45 +152,50 @@ namespace ConnectFour.UI
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 
-            ((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
+            //((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
 
-            //BenchmarkAddMove();
+            BenchmarkAddMove();
+            BenchmarkGetAvailableLines();
+            BenchmarkFindWinningMove();
+            BenchmarkFindBlockingMove();
+            BenchmarkFindSafeMoves();
+            BenchmarkFindDoubleThreatMove();
 
-            while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
-            {
-                int nextMove;
+            //while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
+            //{
+            //    int nextMove;
 
-                if (whoGoesNext == PlayerEnum.PlayerOne)
-                {
-                    nextMove = _playerOne.MakeMove(state, whoGoesNext);
-                }
-                else
-                {
-                    nextMove = _playerTwo.MakeMove(state, whoGoesNext);
-                }
+            //    if (whoGoesNext == PlayerEnum.PlayerOne)
+            //    {
+            //        nextMove = _playerOne.MakeMove(state, whoGoesNext);
+            //    }
+            //    else
+            //    {
+            //        nextMove = _playerTwo.MakeMove(state, whoGoesNext);
+            //    }
 
-                state.AddMove(nextMove, whoGoesNext);
-                log.Moves.Add(nextMove);
+            //    state.AddMove(nextMove, whoGoesNext);
+            //    log.Moves.Add(nextMove);
 
-                var whoWon = state.CheckForWinner();
+            //    var whoWon = state.CheckForWinner();
 
-                if (whoWon != PlayerEnum.GameNotDone)
-                {
-                    log.Winner = whoWon;
-                    results.AddGameResult(log);
-                }
+            //    if (whoWon != PlayerEnum.GameNotDone)
+            //    {
+            //        log.Winner = whoWon;
+            //        results.AddGameResult(log);
+            //    }
 
-                if (whoGoesNext == PlayerEnum.PlayerOne)
-                {
-                    whoGoesNext = PlayerEnum.PlayerTwo;
-                }
-                else
-                {
-                    whoGoesNext = PlayerEnum.PlayerOne;
-                }
-            }
+            //    if (whoGoesNext == PlayerEnum.PlayerOne)
+            //    {
+            //        whoGoesNext = PlayerEnum.PlayerTwo;
+            //    }
+            //    else
+            //    {
+            //        whoGoesNext = PlayerEnum.PlayerOne;
+            //    }
+            //}
 
-            ShowResults(results);
+            //ShowResults(results);
 
             //var start = new Stopwatch();
             //start.Start();
@@ -198,6 +203,171 @@ namespace ConnectFour.UI
             //var end = start.ElapsedMilliseconds;
 
             //MessageBox.Show("Done! " + end.ToString());
+        }
+
+        private void BenchmarkFindWinningMove()
+        {
+            var state = new GameState();
+            var loops = 1000000;
+
+            var watch = new Stopwatch();
+            watch.Start();
+
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            state.AddMove(1, PlayerEnum.PlayerTwo);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            state.AddMove(6, PlayerEnum.PlayerOne);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+
+            var player = new BasicSearchStrategy();
+
+            for (var i = 0; i < loops; i++)
+            {
+                var result = player.FindWinningMove(state, PlayerEnum.PlayerOne);
+            }
+
+            var end = watch.ElapsedMilliseconds;
+
+            Debug.WriteLine($"FindWinningMove {loops}x: {end}ms");
+            Clipboard.SetText($"FindWinningMove {loops}x: {end}ms");
+            MessageBox.Show($"FindWinningMove {loops}x: {end}ms");
+        }
+
+        private void BenchmarkFindBlockingMove()
+        {
+            var state = new GameState();
+            var loops = 1000000;
+
+            var watch = new Stopwatch();
+            watch.Start();
+
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            state.AddMove(1, PlayerEnum.PlayerTwo);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            state.AddMove(6, PlayerEnum.PlayerOne);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+
+            var player = new BasicSearchStrategy();
+
+            for (var i = 0; i < loops; i++)
+            {
+                var result = player.FindBlockingMove(state, PlayerEnum.PlayerOne);
+            }
+
+            var end = watch.ElapsedMilliseconds;
+
+            Debug.WriteLine($"FindBlockingMove {loops}x: {end}ms");
+            Clipboard.SetText($"FindBlockingMove {loops}x: {end}ms");
+            MessageBox.Show($"FindBlockingMove {loops}x: {end}ms");
+        }
+
+        private void BenchmarkFindSafeMoves()
+        {
+            var state = new GameState();
+            var loops = 1000000;
+
+            var watch = new Stopwatch();
+            watch.Start();
+
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            state.AddMove(1, PlayerEnum.PlayerTwo);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            state.AddMove(6, PlayerEnum.PlayerOne);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+
+            var player = new BasicSearchStrategy();
+
+            for (var i = 0; i < loops; i++)
+            {
+                var result = player.FindSafeMoves(state, PlayerEnum.PlayerOne);
+            }
+
+            var end = watch.ElapsedMilliseconds;
+
+            Debug.WriteLine($"FindSafeMoves {loops}x: {end}ms");
+            Clipboard.SetText($"FindSafeMoves {loops}x: {end}ms");
+            MessageBox.Show($"FindSafeMoves {loops}x: {end}ms");
+        }
+
+        private void BenchmarkFindDoubleThreatMove()
+        {
+            var state = new GameState();
+            var loops = 1000000;
+
+            var watch = new Stopwatch();
+            watch.Start();
+
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            state.AddMove(1, PlayerEnum.PlayerTwo);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            state.AddMove(6, PlayerEnum.PlayerOne);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+
+            var player = new BasicSearchStrategy();
+            var safeMoves = player.FindSafeMoves(state, PlayerEnum.PlayerOne);
+
+            for (var i = 0; i < loops; i++)
+            {
+                var result = player.FindDoubleThreatMoves(state, safeMoves, PlayerEnum.PlayerOne);
+            }
+
+            var end = watch.ElapsedMilliseconds;
+
+            Debug.WriteLine($"FindDoubleThreatMove {loops}x: {end}ms");
+            Clipboard.SetText($"FindDoubleThreatMove {loops}x: {end}ms");
+            MessageBox.Show($"FindDoubleThreatMove {loops}x: {end}ms");
+        }
+
+        private void BenchmarkGetAvailableLines()
+        {
+            var state = new GameState();
+            var loops = 10000000;
+
+            var watch = new Stopwatch();
+            watch.Start();
+
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            state.AddMove(1, PlayerEnum.PlayerTwo);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            state.AddMove(6, PlayerEnum.PlayerOne);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+
+            for (var i = 0; i < loops; i++)
+            {
+                var result = state.GetAvailableLines(PlayerEnum.PlayerOne);
+                result = state.GetAvailableLines(PlayerEnum.PlayerTwo);
+            }
+
+            var end = watch.ElapsedMilliseconds;
+
+            Debug.WriteLine($"GetAvailableLines {loops}x: {end}ms");
+            Clipboard.SetText($"GetAvailableLines {loops}x: {end}ms");
+            MessageBox.Show($"GetAvailableLines {loops}x: {end}ms");
         }
 
         private void BenchmarkAddMove()
@@ -236,8 +406,8 @@ namespace ConnectFour.UI
             var end = watch.ElapsedMilliseconds;
 
             Debug.WriteLine($"AddMove/RemoveMove {loops}x: {end}ms");
-            MessageBox.Show($"AddMove/RemoveMove {loops}x: {end}ms");
             Clipboard.SetText($"AddMove/RemoveMove {loops}x: {end}ms");
+            MessageBox.Show($"AddMove/RemoveMove {loops}x: {end}ms");
         }
 
         private void ShowResults(SimulationResult results)
