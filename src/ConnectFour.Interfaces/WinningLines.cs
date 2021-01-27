@@ -6,7 +6,8 @@ namespace ConnectFour.Interfaces
     public static class WinningLines
     {
         private static WinningLine[] lines;
-        private static WinningLine[][] linesByPoint;
+        private static int[][] linesByPoint;
+        public const int TOTAL_LINES = 69;
 
         public static void Initialize()
         {
@@ -19,26 +20,34 @@ namespace ConnectFour.Interfaces
             return lines;
         }
 
-        public static WinningLine[] GetLinesByPoint(int x, int y)
+        public static IEnumerable<WinningLine> GetLinesByPoint(int x, int y)
+        {
+            foreach (var l in linesByPoint[y * y + x])
+            {
+                yield return lines[l];
+            }
+        }
+
+        public static int[] GetLineIndexesByPoint(int x, int y)
         {
             return linesByPoint[y * 7 + x];
         }
 
         private static void InitializeLinesByPoint()
         {
-            var result = new List<WinningLine>[42];
+            var result = new List<int>[42];
 
             for (int x = 0; x < 7; x++)
             {
                 for (int y = 0; y < 6; y++)
                 {
-                    var pointLines = new List<WinningLine>();
+                    var pointLines = new List<int>();
 
-                    foreach (var l in lines)
+                    for (var l = 0; l < lines.Length; l++)
                     {
                         for (var i = 0; i < 4; i++)
                         {
-                            if (l[i].X == x && l[i].Y == y)
+                            if (lines[l][i].X == x && lines[l][i].Y == y)
                             {
                                 pointLines.Add(l);
                                 break;
@@ -50,11 +59,11 @@ namespace ConnectFour.Interfaces
                 }
             }
 
-            linesByPoint = new WinningLine[42][];
+            linesByPoint = new int[42][];
 
             for (var i = 0; i < 42; i++)
             {
-                linesByPoint[i] = new WinningLine[result[i].Count];
+                linesByPoint[i] = new int[result[i].Count];
 
                 for (var j = 0; j < result[i].Count; j++)
                 {
@@ -65,9 +74,9 @@ namespace ConnectFour.Interfaces
 
         private static void InitializeLines()
         {
-            lines = new WinningLine[69];
+            lines = new WinningLine[TOTAL_LINES];
 
-            for (int i = 0; i < 69; i++)
+            for (int i = 0; i < TOTAL_LINES; i++)
             {
                 lines[i] = new WinningLine();
             }
@@ -421,7 +430,7 @@ namespace ConnectFour.Interfaces
             lines[68][2] = new Point(1, 4);
             lines[68][3] = new Point(0, 5);
 
-            for (int i = 0; i < 69; i++)
+            for (int i = 0; i < TOTAL_LINES; i++)
             {
                 lines[i].Initialize();
             }

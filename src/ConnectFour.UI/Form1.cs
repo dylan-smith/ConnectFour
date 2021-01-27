@@ -127,15 +127,15 @@ namespace ConnectFour.UI
             log.Moves.Add(1);
             state.AddMove(2, PlayerEnum.PlayerTwo);
             log.Moves.Add(2);
-            //state.AddMove(3, PlayerEnum.PlayerOne);
-            //log.Moves.Add(3);
-            //state.AddMove(4, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(4);
+            state.AddMove(3, PlayerEnum.PlayerOne);
+            log.Moves.Add(3);
+            state.AddMove(4, PlayerEnum.PlayerTwo);
+            log.Moves.Add(4);
 
-            //state.AddMove(0, PlayerEnum.PlayerOne);
-            //log.Moves.Add(0);
-            //state.AddMove(0, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(0);
+            state.AddMove(0, PlayerEnum.PlayerOne);
+            log.Moves.Add(0);
+            state.AddMove(0, PlayerEnum.PlayerTwo);
+            log.Moves.Add(0);
             //state.AddMove(0, PlayerEnum.PlayerOne);
             //log.Moves.Add(0);
             //state.AddMove(0, PlayerEnum.PlayerTwo);
@@ -152,7 +152,9 @@ namespace ConnectFour.UI
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 
-            //((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
+            ((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
+
+            //BenchmarkAddMove();
 
             while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
             {
@@ -196,6 +198,46 @@ namespace ConnectFour.UI
             //var end = start.ElapsedMilliseconds;
 
             //MessageBox.Show("Done! " + end.ToString());
+        }
+
+        private void BenchmarkAddMove()
+        {
+            var state = new GameState();
+            var loops = 10000;
+
+            var watch = new Stopwatch();
+            watch.Start();
+
+            for (var i = 0; i < loops; i++)
+            {
+                state.AddMove(0, PlayerEnum.PlayerOne);
+                state.AddMove(1, PlayerEnum.PlayerTwo);
+                state.AddMove(2, PlayerEnum.PlayerOne);
+                state.AddMove(3, PlayerEnum.PlayerTwo);
+                state.AddMove(4, PlayerEnum.PlayerOne);
+                state.AddMove(5, PlayerEnum.PlayerTwo);
+                state.AddMove(6, PlayerEnum.PlayerOne);
+                state.AddMove(0, PlayerEnum.PlayerTwo);
+                state.AddMove(1, PlayerEnum.PlayerOne);
+                state.AddMove(2, PlayerEnum.PlayerTwo);
+
+                state.RemoveMove(2, 1, PlayerEnum.PlayerTwo);
+                state.RemoveMove(1, 1, PlayerEnum.PlayerOne);
+                state.RemoveMove(0, 1, PlayerEnum.PlayerTwo);
+                state.RemoveMove(6, 0, PlayerEnum.PlayerOne);
+                state.RemoveMove(5, 0, PlayerEnum.PlayerTwo);
+                state.RemoveMove(4, 0, PlayerEnum.PlayerOne);
+                state.RemoveMove(3, 0, PlayerEnum.PlayerTwo);
+                state.RemoveMove(2, 0, PlayerEnum.PlayerOne);
+                state.RemoveMove(1, 0, PlayerEnum.PlayerTwo);
+                state.RemoveMove(2, 0, PlayerEnum.PlayerOne);
+            }
+
+            var end = watch.ElapsedMilliseconds;
+
+            Debug.WriteLine($"AddMove/RemoveMove {loops}x: {end}ms");
+            MessageBox.Show($"AddMove/RemoveMove {loops}x: {end}ms");
+            Clipboard.SetText($"AddMove/RemoveMove {loops}x: {end}ms");
         }
 
         private void ShowResults(SimulationResult results)

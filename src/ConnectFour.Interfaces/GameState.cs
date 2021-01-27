@@ -12,7 +12,8 @@ namespace ConnectFour.Interfaces
         private long _playerTwoChips = 0L;
 
         //private int[] _chipCounts = new int[3];
-        private List<WinningLine>[] _availableLines;
+        //private List<WinningLine>[] _availableLines;
+        private bool[][] _availableLines;
 
         //private int[] _nextEmptyRow;
 
@@ -33,24 +34,19 @@ namespace ConnectFour.Interfaces
             _availableLines = InitializeAvailableLines();
         }
 
-        private List<WinningLine>[] InitializeAvailableLines()
+        private bool[][] InitializeAvailableLines()
         {
-            var result = new List<WinningLine>[3];
+            var result = new bool[3][];
 
-            result[(int)PlayerEnum.PlayerOne] = new List<WinningLine>();
-            result[(int)PlayerEnum.PlayerTwo] = new List<WinningLine>();
+            result[(int)PlayerEnum.PlayerOne] = new bool[WinningLines.GetAllWinningLines().Length];
+            result[(int)PlayerEnum.PlayerTwo] = new bool[WinningLines.GetAllWinningLines().Length];
 
-            foreach (var line in WinningLines.GetAllWinningLines())
+            for (var i = 0; i < WinningLines.GetAllWinningLines().Length; i++)
             {
-                if (LineIsAvailable(line, PlayerEnum.PlayerOne))
-                {
-                    result[(int)PlayerEnum.PlayerOne].Add(line);
-                }
+                var line = WinningLines.GetAllWinningLines()[i];
 
-                if (LineIsAvailable(line, PlayerEnum.PlayerTwo))
-                {
-                    result[(int)PlayerEnum.PlayerTwo].Add(line);
-                }
+                result[(int)PlayerEnum.PlayerOne][i] = LineIsAvailable(line, PlayerEnum.PlayerOne);
+                result[(int)PlayerEnum.PlayerOne][i] = LineIsAvailable(line, PlayerEnum.PlayerTwo);
             }
 
             return result;
@@ -84,7 +80,7 @@ namespace ConnectFour.Interfaces
             ZERO_OUT_NEXT_EMPTY[5] = 0b_111_000_111_111_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
             ZERO_OUT_NEXT_EMPTY[6] = 0b_000_111_111_111_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
 
-            _availableLines = InitializeAvailableLines();
+            _availableLines = source._availableLines;
         }
 
         public long GetEncoding()
@@ -165,9 +161,15 @@ namespace ConnectFour.Interfaces
             }
         }
 
-        public List<WinningLine> GetAvailableLines(PlayerEnum player)
+        public IEnumerable<WinningLine> GetAvailableLines(PlayerEnum player)
         {
-            return _availableLines[(int)player];
+            for (var i = 0; i < WinningLines.TOTAL_LINES; i++)
+            {
+                if (_availableLines[(int)player][i])
+                {
+                    yield return WinningLines.GetAllWinningLines()[i];
+                }
+            }
         }
 
         public bool AreMovesAvailable()
@@ -197,12 +199,12 @@ namespace ConnectFour.Interfaces
                 SetPlayerTwoMove(move, y);
             }
 
-            var lines = WinningLines.GetLinesByPoint(move, y);
+            var lines = WinningLines.GetLineIndexesByPoint(move, y);
             var opponent = GetOpponent(player);
 
             foreach (var line in lines)
             {
-                _availableLines[(int)opponent].Remove(line);
+                _availableLines[(int)opponent][line] = false;
             }
 
             return y;
@@ -245,6 +247,8 @@ namespace ConnectFour.Interfaces
         {
             SetFirstEmptyRow(x, y);
             SetPositionToZero(x, y);
+
+            // TODO: this doesn't properly update available lines
         }
 
         public void RemoveMove(int x, int y, PlayerEnum player)
@@ -252,15 +256,15 @@ namespace ConnectFour.Interfaces
             SetFirstEmptyRow(x, y);
             SetPositionToZero(x, y);
 
-            var lines = WinningLines.GetLinesByPoint(x, y);
+            var lines = WinningLines.GetLineIndexesByPoint(x, y);
 
             var opponent = GetOpponent(player);
 
             foreach (var line in lines)
             {
-                if (LineIsAvailable(line, opponent))
+                if (LineIsAvailable(WinningLines.GetAllWinningLines()[line], opponent))
                 {
-                    _availableLines[(int)opponent].Add(line);
+                    _availableLines[(int)opponent][line] = true;
                 }
             }
         }
@@ -286,19 +290,22 @@ namespace ConnectFour.Interfaces
                 {
                     return line[0].X;
                 }
-            } else if (result == line.SpotTwo)
+            }
+            else if (result == line.SpotTwo)
             {
                 if (FindFirstEmptyRow(line[1].X) == line[1].Y)
                 {
                     return line[1].X;
                 }
-            } else if (result == line.SpotThree)
+            }
+            else if (result == line.SpotThree)
             {
                 if (FindFirstEmptyRow(line[2].X) == line[2].Y)
                 {
                     return line[2].X;
                 }
-            } else if (result == line.SpotFour)
+            }
+            else if (result == line.SpotFour)
             {
                 if (FindFirstEmptyRow(line[3].X) == line[3].Y)
                 {

@@ -344,7 +344,7 @@ namespace ConnectFour.Strategy.BasicSearch
             {
                 var move = state.CanCompleteLine(line, whoAreYou);
 
-                if (move != -1 && firstThreat >= 0)
+                if (move != -1 && firstThreat >= 0 && move != firstThreat)
                 {
                     return true;
                 }
