@@ -46,7 +46,7 @@ namespace ConnectFour.Interfaces
                 var line = WinningLines.GetAllWinningLines()[i];
 
                 result[(int)PlayerEnum.PlayerOne][i] = LineIsAvailable(line, PlayerEnum.PlayerOne);
-                result[(int)PlayerEnum.PlayerOne][i] = LineIsAvailable(line, PlayerEnum.PlayerTwo);
+                result[(int)PlayerEnum.PlayerTwo][i] = LineIsAvailable(line, PlayerEnum.PlayerTwo);
             }
 
             return result;
@@ -80,7 +80,7 @@ namespace ConnectFour.Interfaces
             ZERO_OUT_NEXT_EMPTY[5] = 0b_111_000_111_111_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
             ZERO_OUT_NEXT_EMPTY[6] = 0b_000_111_111_111_111_111_111___11_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
 
-            _availableLines = source._availableLines;
+            _availableLines = InitializeAvailableLines();
         }
 
         public long GetEncoding()

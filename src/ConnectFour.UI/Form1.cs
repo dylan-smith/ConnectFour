@@ -132,10 +132,10 @@ namespace ConnectFour.UI
             state.AddMove(4, PlayerEnum.PlayerTwo);
             log.Moves.Add(4);
 
-            state.AddMove(0, PlayerEnum.PlayerOne);
-            log.Moves.Add(0);
-            state.AddMove(0, PlayerEnum.PlayerTwo);
-            log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerOne);
+            //log.Moves.Add(0);
+            //state.AddMove(0, PlayerEnum.PlayerTwo);
+            //log.Moves.Add(0);
             //state.AddMove(0, PlayerEnum.PlayerOne);
             //log.Moves.Add(0);
             //state.AddMove(0, PlayerEnum.PlayerTwo);
@@ -152,50 +152,50 @@ namespace ConnectFour.UI
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 
-            //((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
+            ((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
 
-            BenchmarkAddMove();
-            BenchmarkGetAvailableLines();
-            BenchmarkFindWinningMove();
-            BenchmarkFindBlockingMove();
-            BenchmarkFindSafeMoves();
-            BenchmarkFindDoubleThreatMove();
+            //BenchmarkAddMove();
+            //BenchmarkGetAvailableLines();
+            //BenchmarkFindWinningMove();
+            //BenchmarkFindBlockingMove();
+            //BenchmarkFindSafeMoves();
+            //BenchmarkFindDoubleThreatMove();
 
-            //while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
-            //{
-            //    int nextMove;
+            while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
+            {
+                int nextMove;
 
-            //    if (whoGoesNext == PlayerEnum.PlayerOne)
-            //    {
-            //        nextMove = _playerOne.MakeMove(state, whoGoesNext);
-            //    }
-            //    else
-            //    {
-            //        nextMove = _playerTwo.MakeMove(state, whoGoesNext);
-            //    }
+                if (whoGoesNext == PlayerEnum.PlayerOne)
+                {
+                    nextMove = _playerOne.MakeMove(state, whoGoesNext);
+                }
+                else
+                {
+                    nextMove = _playerTwo.MakeMove(state, whoGoesNext);
+                }
 
-            //    state.AddMove(nextMove, whoGoesNext);
-            //    log.Moves.Add(nextMove);
+                state.AddMove(nextMove, whoGoesNext);
+                log.Moves.Add(nextMove);
 
-            //    var whoWon = state.CheckForWinner();
+                var whoWon = state.CheckForWinner();
 
-            //    if (whoWon != PlayerEnum.GameNotDone)
-            //    {
-            //        log.Winner = whoWon;
-            //        results.AddGameResult(log);
-            //    }
+                if (whoWon != PlayerEnum.GameNotDone)
+                {
+                    log.Winner = whoWon;
+                    results.AddGameResult(log);
+                }
 
-            //    if (whoGoesNext == PlayerEnum.PlayerOne)
-            //    {
-            //        whoGoesNext = PlayerEnum.PlayerTwo;
-            //    }
-            //    else
-            //    {
-            //        whoGoesNext = PlayerEnum.PlayerOne;
-            //    }
-            //}
+                if (whoGoesNext == PlayerEnum.PlayerOne)
+                {
+                    whoGoesNext = PlayerEnum.PlayerTwo;
+                }
+                else
+                {
+                    whoGoesNext = PlayerEnum.PlayerOne;
+                }
+            }
 
-            //ShowResults(results);
+            ShowResults(results);
 
             //var start = new Stopwatch();
             //start.Start();

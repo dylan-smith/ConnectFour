@@ -88,5 +88,17 @@ namespace ConnectFour.Interfaces
         {
             return _points.GetEnumerator();
         }
+
+        public override string ToString()
+        {
+            var result = "";
+
+            foreach (var p in _points)
+            {
+                result += $"[{p.X}, {p.Y}], ";
+            }
+
+            return result.Substring(0, result.Length - 2);
+        }
     }
 }
