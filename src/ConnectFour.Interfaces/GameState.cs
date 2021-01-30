@@ -6,20 +6,14 @@ namespace ConnectFour.Interfaces
 {
     public class GameState
     {
-        //private PlayerEnum[][] _board;
         private long _state = 0L;
         private long _playerOneChips = 0L;
         private long _playerTwoChips = 0L;
 
-        //private int[] _chipCounts = new int[3];
-        //private List<WinningLine>[] _availableLines;
         private bool[][] _availableLines;
-
-        //private int[] _nextEmptyRow;
 
         private const long ONES = 0b_111_111_111_111_111_111_111_1111111_1111111_1111111_1111111_1111111_1111111;
         private long[] ZERO_OUT_NEXT_EMPTY = new long[7];
-        // private const long PLAYER_ONE_CHIPS_MASK = 0b_1111111_1111111_1111111_1111111_1111111_1111111;
 
         public GameState()
         {

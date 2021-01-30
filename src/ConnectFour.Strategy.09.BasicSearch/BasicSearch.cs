@@ -41,42 +41,41 @@ namespace ConnectFour.Strategy.BasicSearch
             {
                 var y1 = state.AddMove(a, player);
 
-                //var threadState = state.Copy();
+                var threadState = state.Copy();
 
-                //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
-                //task.Start();
-                //tasks.Add(task);
+                var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
+                task.Start();
+                tasks.Add(task);
 
-                for (var b = 0; b <= 6; b++)
-                {
-                    var y2 = state.AddMove(b, opponent);
+                //for (var b = 0; b <= 6; b++)
+                //{
+                //    var y2 = state.AddMove(b, opponent);
 
-                    var threadState = state.Copy();
+                //    var threadState = state.Copy();
 
-                    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
-                    task.Start();
-                    tasks.Add(task);
-                    task.Wait();
+                //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
+                //    task.Start();
+                //    tasks.Add(task);
+                //    //task.Wait();
 
-                    
-                    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
-                    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-                    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
+                //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
+                //    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+                //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
 
-                    //for (var c = 0; c <= 6; c++)
-                    //{
-                    //    var y3 = state.AddMove(c, player);
-                    //    var threadState = state.Copy();
+                //    //for (var c = 0; c <= 6; c++)
+                //    //{
+                //    //    var y3 = state.AddMove(c, player);
+                //    //    var threadState = state.Copy();
 
-                    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
-                    //    task.Start();
-                    //    tasks.Add(task);
+                //    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
+                //    //    task.Start();
+                //    //    tasks.Add(task);
 
-                    //    state.RemoveMove(c, y3);
-                    //}
+                //    //    state.RemoveMove(c, y3);
+                //    //}
 
-                    state.RemoveMove(b, y2, opponent);
-                }
+                //    state.RemoveMove(b, y2, opponent);
+                //}
 
                 state.RemoveMove(a, y1, player);
             }
