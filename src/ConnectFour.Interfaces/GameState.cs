@@ -7,6 +7,7 @@ namespace ConnectFour.Interfaces
     public class GameState
     {
         private long _state = 0L;
+        private long _symmetryState = 0L;
         private long _playerOneChips = 0L;
         private long _playerTwoChips = 0L;
 
@@ -63,6 +64,7 @@ namespace ConnectFour.Interfaces
         public GameState(GameState source)
         {
             _state = source._state;
+            _symmetryState = source._symmetryState;
             _playerOneChips = source._playerOneChips;
             _playerTwoChips = source._playerTwoChips;
 
@@ -79,19 +81,11 @@ namespace ConnectFour.Interfaces
 
         public long GetEncoding()
         {
-            // TODO: Symmetry check
-            var symmetry = GetSymmetryState();
-
-            if (symmetry < _state)
+            if (_symmetryState < _state)
             {
-                return symmetry;
+                return _symmetryState;
             }
 
-            return _state;
-        }
-
-        private long GetSymmetryState()
-        {
             return _state;
         }
 
@@ -211,6 +205,11 @@ namespace ConnectFour.Interfaces
 
             _state |= mask;
             _playerOneChips |= mask;
+
+            shift = y * 7 + (6 - x);
+            mask = 1L << shift;
+
+            _symmetryState |= mask;
         }
 
         private void SetPlayerTwoMove(int x, int y)
@@ -221,7 +220,7 @@ namespace ConnectFour.Interfaces
             _playerTwoChips |= mask;
         }
 
-        private void SetPositionToZero(int x, int y)
+        private void SetPositionToEmpty(int x, int y)
         {
             var shift = y * 7 + x;
             var mask = (1L << shift) ^ ONES;
@@ -229,18 +228,26 @@ namespace ConnectFour.Interfaces
             _state &= mask;
             _playerOneChips &= mask;
             _playerTwoChips &= mask;
+
+            shift = y * 7 + (6 - x);
+            mask = (1L << shift) ^ ONES;
+
+            _symmetryState &= mask;
         }
 
         private void SetFirstEmptyRow(int x, int y)
         {
             var mask = (long)y << (42 + x * 3);
             _state = _state & ZERO_OUT_NEXT_EMPTY[x] | mask;
+
+            mask = (long)y << (42 + (6 - x) * 3);
+            _symmetryState = _symmetryState & ZERO_OUT_NEXT_EMPTY[6 - x] | mask;
         }
 
         public void RemoveMove(int x, int y)
         {
             SetFirstEmptyRow(x, y);
-            SetPositionToZero(x, y);
+            SetPositionToEmpty(x, y);
 
             // TODO: this doesn't properly update available lines
         }
@@ -248,7 +255,7 @@ namespace ConnectFour.Interfaces
         public void RemoveMove(int x, int y, PlayerEnum player)
         {
             SetFirstEmptyRow(x, y);
-            SetPositionToZero(x, y);
+            SetPositionToEmpty(x, y);
 
             var lines = WinningLines.GetLineIndexesByPoint(x, y);
 
