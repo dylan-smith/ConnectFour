@@ -24,7 +24,7 @@ namespace ConnectFour.Strategy.BasicSearch
         //private long _countFoundWinner = 0;
         //private long _countFoundDraw = 0;
         //private long _countNoWinnerFound = 0;
-        private const int STORAGE_DEPTH = 36;
+        private const int STORAGE_DEPTH = 30;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
@@ -41,41 +41,40 @@ namespace ConnectFour.Strategy.BasicSearch
             {
                 var y1 = state.AddMove(a, player);
 
-                var threadState = state.Copy();
+                //var threadState = state.Copy();
 
-                var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
-                task.Start();
-                tasks.Add(task);
+                //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
+                //task.Start();
+                //tasks.Add(task);
 
-                //for (var b = 0; b <= 6; b++)
-                //{
-                //    var y2 = state.AddMove(b, opponent);
+                for (var b = 0; b <= 6; b++)
+                {
+                    var y2 = state.AddMove(b, opponent);
 
-                //    var threadState = state.Copy();
+                    var threadState = state.Copy();
 
-                //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
-                //    task.Start();
-                //    tasks.Add(task);
-                //    //task.Wait();
+                    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
+                    task.Start();
+                    tasks.Add(task);
 
-                //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
-                //    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-                //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
+                    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
+                    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+                    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
 
-                //    //for (var c = 0; c <= 6; c++)
-                //    //{
-                //    //    var y3 = state.AddMove(c, player);
-                //    //    var threadState = state.Copy();
+                    //for (var c = 0; c <= 6; c++)
+                    //{
+                    //    var y3 = state.AddMove(c, player);
+                    //    var threadState = state.Copy();
 
-                //    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
-                //    //    task.Start();
-                //    //    tasks.Add(task);
+                    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
+                    //    task.Start();
+                    //    tasks.Add(task);
 
-                //    //    state.RemoveMove(c, y3);
-                //    //}
+                    //    state.RemoveMove(c, y3);
+                    //}
 
-                //    state.RemoveMove(b, y2, opponent);
-                //}
+                    state.RemoveMove(b, y2, opponent);
+                }
 
                 state.RemoveMove(a, y1, player);
             }
@@ -106,7 +105,7 @@ namespace ConnectFour.Strategy.BasicSearch
 
             foreach (var row in table)
             {
-                result.TryAdd(Convert.ToInt64((long)row["State1"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
+                result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
             }
 
             return result;
@@ -130,8 +129,7 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             var result = new DataTable("Decisions");
 
-            result.Columns.Add("State1", typeof(long));
-            result.Columns.Add("State2", typeof(long));
+            result.Columns.Add("State", typeof(long));
             result.Columns.Add("Winner", typeof(byte));
 
             return result;
@@ -141,8 +139,7 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             var newRow = decisionsTable.NewRow();
 
-            newRow["State1"] = state;
-            newRow["State2"] = 0L;
+            newRow["State"] = state;
             newRow["Winner"] = (byte)winner;
 
             decisionsTable.Rows.Add(newRow);
@@ -281,8 +278,11 @@ namespace ConnectFour.Strategy.BasicSearch
 
             var canDraw = false;
 
-            foreach (var move in safeMoves)
+            var startIdx = safeMoves.Length / 2;
+
+            for (var i = 0; i < safeMoves.Length; i++)
             {
+                var move = safeMoves[(startIdx + i) % safeMoves.Length];
                 var y = state.AddMove(move, whoAreYou);
                 var winner = await EvaluateState(state, GetOpponent(whoAreYou), depth + 1);
                 state.RemoveMove(move, y, whoAreYou);
