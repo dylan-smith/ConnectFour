@@ -24,12 +24,15 @@ namespace ConnectFour.Strategy.BasicSearch
         //private long _countFoundWinner = 0;
         //private long _countFoundDraw = 0;
         //private long _countNoWinnerFound = 0;
-        private const int STORAGE_DEPTH = 30;
+        private const int STORAGE_DEPTH = 24;
+        private const string WIP_SQL = "INSERT INTO DecisionsWIP(State, Winner) VALUES(@State, @Winner)";
+        private const string CONNECTION_STRING = "Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;";
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
             var opponent = GetOpponent(player);
-            _decisions = new ConcurrentDictionary<long, PlayerEnum>();
+
+            _decisions = ReadWIPDecisions();
 
             _generateDecisions = true;
             var tasks = new List<Task>();
@@ -95,26 +98,44 @@ namespace ConnectFour.Strategy.BasicSearch
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] DONE\n");
         }
 
+        private ConcurrentDictionary<long, PlayerEnum> ReadWIPDecisions()
+        {
+            using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
+            {
+                var table = db.GetDataTable("SELECT * FROM DecisionsWIP");
+
+                var result = new ConcurrentDictionary<long, PlayerEnum>();
+
+                foreach (var row in table)
+                {
+                    result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
+                }
+
+                return result;
+            }
+        }
+
         private ConcurrentDictionary<long, PlayerEnum> ReadDecisionsFromDatabase()
         {
-            var db = new SqlServerDatabaseLayer("Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;");
-
-            var table = db.GetDataTable("SELECT * FROM Decisions");
-
-            var result = new ConcurrentDictionary<long, PlayerEnum>();
-
-            foreach (var row in table)
+            using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
             {
-                result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
-            }
+                var table = db.GetDataTable("SELECT * FROM Decisions");
 
-            return result;
+                var result = new ConcurrentDictionary<long, PlayerEnum>();
+
+                foreach (var row in table)
+                {
+                    result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
+                }
+
+                return result;
+            }
         }
 
         private void WriteDecisionsToDatabase(ConcurrentDictionary<long, PlayerEnum> decisions)
         {
             var dataTable = CreateDecisionsTable();
-            var db = new SqlServerDatabaseLayer("Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;");
+            var db = new SqlServerDatabaseLayer(CONNECTION_STRING);
 
             foreach (var decision in decisions)
             {
@@ -343,7 +364,17 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             if (_generateDecisions && depth <= STORAGE_DEPTH)
             {
-                _decisions.AddOrUpdate(state.GetEncoding(), winner, (a, b) => winner);
+                var encoding = state.GetEncoding();
+                _decisions.AddOrUpdate(encoding, winner, (a, b) => winner);
+                new Task(() => WriteWIPDecision(encoding, winner)).Start();
+            }
+        }
+
+        private void WriteWIPDecision(long state, PlayerEnum winner)
+        {
+            using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
+            {
+                db.ExecuteNonQuery(WIP_SQL, "@State", state, "@Winner", winner);
             }
         }
 
