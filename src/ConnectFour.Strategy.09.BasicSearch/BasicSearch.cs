@@ -11,7 +11,8 @@ namespace ConnectFour.Strategy.BasicSearch
 {
     public class BasicSearchStrategy : IStrategy
     {
-        private ConcurrentDictionary<long, PlayerEnum> _decisions;
+        //private ConcurrentDictionary<long, PlayerEnum> _decisions;
+        private Dictionary<long, (PlayerEnum winner, int move)> _decisions;
         private bool _generateDecisions = false;
         //private long _countEvaluateState = 0;
         //private long _countMaxDepth = 0;
@@ -27,119 +28,131 @@ namespace ConnectFour.Strategy.BasicSearch
         private const int STORAGE_DEPTH = 24;
         private const string WIP_SQL = "INSERT INTO DecisionsWIP(State, Winner) VALUES(@State, @Winner)";
         private const string CONNECTION_STRING = "Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;";
+        private int MAX_DEPTH = 0;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
             var opponent = GetOpponent(player);
 
-            _decisions = ReadWIPDecisions();
+            //_decisions = ReadWIPDecisions();
+            _decisions = new Dictionary<long, (PlayerEnum winner, int move)>();
 
             _generateDecisions = true;
-            var tasks = new List<Task>();
+            //var tasks = new List<Task>();
             var depth = state.GetTotalMoves();
+            MAX_DEPTH = depth;
+            var result = PlayerEnum.GameNotDone;
 
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] STARTING\n");
 
-            for (var a = 0; a <= 6; a++)
+            while (result == PlayerEnum.GameNotDone)
             {
-                var y1 = state.AddMove(a, player);
-
-                //var threadState = state.Copy();
-
-                //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
-                //task.Start();
-                //tasks.Add(task);
-
-                for (var b = 0; b <= 6; b++)
-                {
-                    var y2 = state.AddMove(b, opponent);
-
-                    var threadState = state.Copy();
-
-                    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
-                    task.Start();
-                    tasks.Add(task);
-
-                    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
-                    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-                    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
-
-                    //for (var c = 0; c <= 6; c++)
-                    //{
-                    //    var y3 = state.AddMove(c, player);
-                    //    var threadState = state.Copy();
-
-                    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
-                    //    task.Start();
-                    //    tasks.Add(task);
-
-                    //    state.RemoveMove(c, y3);
-                    //}
-
-                    state.RemoveMove(b, y2, opponent);
-                }
-
-                state.RemoveMove(a, y1, player);
+                MAX_DEPTH++;
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] DEPTH: {MAX_DEPTH}\n");
+                result = EvaluateState(state, player, depth).Result.winner;
             }
 
-            while (tasks.Any())
-            {
-                var done = Task.WaitAny(tasks.ToArray());
-                tasks.RemoveAt(done);
+            //for (var a = 0; a <= 6; a++)
+            //{
+            //    var y1 = state.AddMove(a, player);
 
-                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } left)\n");
-                //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-                //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
-            }
+            //    //var threadState = state.Copy();
 
+            //    //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
+            //    //task.Start();
+            //    //tasks.Add(task);
+
+            //    for (var b = 0; b <= 6; b++)
+            //    {
+            //        var y2 = state.AddMove(b, opponent);
+
+            //        var threadState = state.Copy();
+
+            //        var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
+            //        task.Start();
+            //        tasks.Add(task);
+
+            //        //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
+            //        //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+            //        //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
+
+            //        //for (var c = 0; c <= 6; c++)
+            //        //{
+            //        //    var y3 = state.AddMove(c, player);
+            //        //    var threadState = state.Copy();
+
+            //        //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
+            //        //    task.Start();
+            //        //    tasks.Add(task);
+
+            //        //    state.RemoveMove(c, y3);
+            //        //}
+
+            //        state.RemoveMove(b, y2, opponent);
+            //    }
+
+            //    state.RemoveMove(a, y1, player);
+            //}
+
+            //while (tasks.Any())
+            //{
+            //    var done = Task.WaitAny(tasks.ToArray());
+            //    tasks.RemoveAt(done);
+
+            //    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } left)\n");
+            //    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+            //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
+            //}
+
+            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Writing to DB...\n");
             _generateDecisions = false;
 
-             WriteDecisionsToDatabase(_decisions);
+            WriteDecisionsToDatabase(_decisions);
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] DONE\n");
         }
 
-        private ConcurrentDictionary<long, PlayerEnum> ReadWIPDecisions()
-        {
-            using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
-            {
-                var table = db.GetDataTable("SELECT * FROM DecisionsWIP");
+        //private ConcurrentDictionary<long, PlayerEnum> ReadWIPDecisions()
+        //{
+        //    using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
+        //    {
+        //        var table = db.GetDataTable("SELECT * FROM DecisionsWIP");
 
-                var result = new ConcurrentDictionary<long, PlayerEnum>();
+        //        var result = new ConcurrentDictionary<long, PlayerEnum>();
 
-                foreach (var row in table)
-                {
-                    result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
-                }
+        //        foreach (var row in table)
+        //        {
+        //            result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
+        //        }
 
-                return result;
-            }
-        }
+        //        return result;
+        //    }
+        //}
 
-        private ConcurrentDictionary<long, PlayerEnum> ReadDecisionsFromDatabase()
+        private Dictionary<long, (PlayerEnum winner, int move)> ReadDecisionsFromDatabase()
         {
             using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
             {
                 var table = db.GetDataTable("SELECT * FROM Decisions");
 
-                var result = new ConcurrentDictionary<long, PlayerEnum>();
+                var result = new Dictionary<long, (PlayerEnum winner, int move)>();
 
                 foreach (var row in table)
                 {
-                    result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
+                    result.Add(Convert.ToInt64((long)row["State"]), ((PlayerEnum)Convert.ToInt32((byte)row["Winner"]), Convert.ToInt32((byte)row["Move"])));
                 }
 
                 return result;
             }
         }
 
-        private void WriteDecisionsToDatabase(ConcurrentDictionary<long, PlayerEnum> decisions)
+        private void WriteDecisionsToDatabase(Dictionary<long, (PlayerEnum winner, int move)> decisions)
         {
             var dataTable = CreateDecisionsTable();
             var db = new SqlServerDatabaseLayer(CONNECTION_STRING);
 
             foreach (var decision in decisions)
             {
-                InsertRowToDecisionsTable(decision.Key, decision.Value, dataTable);
+                InsertRowToDecisionsTable(decision.Key, decision.Value.winner, decision.Value.move, dataTable);
             }
 
             db.ExecuteNonQuery("TRUNCATE TABLE Decisions");
@@ -152,16 +165,18 @@ namespace ConnectFour.Strategy.BasicSearch
 
             result.Columns.Add("State", typeof(long));
             result.Columns.Add("Winner", typeof(byte));
+            result.Columns.Add("Move", typeof(byte));
 
             return result;
         }
 
-        private void InsertRowToDecisionsTable(long state, PlayerEnum winner, DataTable decisionsTable)
+        private void InsertRowToDecisionsTable(long state, PlayerEnum winner, int move, DataTable decisionsTable)
         {
             var newRow = decisionsTable.NewRow();
 
             newRow["State"] = state;
             newRow["Winner"] = (byte)winner;
+            newRow["Move"] = (byte)move;
 
             decisionsTable.Rows.Add(newRow);
         }
@@ -173,98 +188,77 @@ namespace ConnectFour.Strategy.BasicSearch
                 _decisions = ReadDecisionsFromDatabase();
             }
 
-            var move = FindWinningMove(state, whoAreYou);
+            MAX_DEPTH = 42;
+            var (winner, move) = EvaluateState(state, whoAreYou, state.GetTotalMoves()).Result;
 
-            if (move != -1)
+            if (winner == whoAreYou)
             {
-                return move;
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Winner) =======================================================================\n");
             }
 
-            move = FindBlockingMove(state, whoAreYou);
-
-            if (move != -1)
-            {
-                return move;
-            }
-
-            var safeMoves = FindSafeMoves(state, whoAreYou);
-
-            if (safeMoves.Length == 0)
-            {
-                return FindValidMoves(state).First();
-            }
-
-            move = FindDoubleThreatMoves(state, safeMoves, whoAreYou);
-
-            if (move != -1)
-            {
-                return move;
-            }
-
-            var drawMove = -1;
-
-            foreach (var m in safeMoves)
-            {
-                var y = state.AddMove(m, whoAreYou);
-
-                var task = EvaluateState(state, GetOpponent(whoAreYou), 1);
-                var winner = task.Result;
-
-                state.RemoveMove(m, y, whoAreYou);
-
-                if (winner == whoAreYou)
-                {
-                    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Winner) =======================================================================\n");
-                    return m;
-                }
-
-                if (winner == PlayerEnum.Stalemate)
-                {
-                    drawMove = m;
-                }
-            }
-
-            if (drawMove != -1)
+            if (winner == PlayerEnum.Stalemate)
             {
                 File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Draw) =======================================================================\n");
-                return drawMove;
             }
 
-            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Loser) =======================================================================\n");
-            return safeMoves.First();
+            if (winner == GetOpponent(whoAreYou))
+            {
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] MOVE DONE (Loser) =======================================================================\n");
+            }
+
+            return move;
         }
 
-        private async Task<PlayerEnum> EvaluateState(GameState state, PlayerEnum whoAreYou, int depth)
+        private async Task<(PlayerEnum winner, int move)> EvaluateState(GameState state, PlayerEnum whoAreYou, int depth)
         {
             //_countEvaluateState++;
 
             if (depth == 42)
             {
                 //_countMaxDepth++;
-                return PlayerEnum.Stalemate;
+                return (PlayerEnum.Stalemate, 0);
             }
 
-            if (CheckDecision(state, depth))
+            if (depth >= MAX_DEPTH)
             {
-                //_countCacheHit++;
-
-                var decision = GetDecision(state);
-
-                while (decision == PlayerEnum.GameNotDone)
-                {
-                    //_countCacheWait++;
-                    await Task.Yield();
-                    decision = GetDecision(state);
-                }
-
-                return decision;
+                return (PlayerEnum.GameNotDone, 0);
             }
 
-            if (FindWinningMove(state, whoAreYou) != -1)
+            var encoding = state.GetEncoding();
+
+            if (encoding == 1338215602166187349L)
+            {
+                var foo = 12;
+            }
+
+            if (_decisions.ContainsKey(encoding))
+            {
+                return _decisions[encoding];
+            }
+
+            //if (CheckDecision(state, depth))
+            //{
+            //    //_countCacheHit++;
+
+            //    var decision = GetDecision(state);
+
+            //    while (decision == PlayerEnum.GameNotDone)
+            //    {
+            //        //_countCacheWait++;
+            //        await Task.Yield();
+            //        decision = GetDecision(state);
+            //    }
+
+            //    return decision;
+            //}
+
+            var winningMove = FindWinningMove(state, whoAreYou);
+
+            if (winningMove != -1)
             {
                 //_countWinningMove++;
-                SaveDecision(state, whoAreYou, depth);
-                return whoAreYou;
+                SaveDecision(state, whoAreYou, winningMove, depth);
+                return (whoAreYou, winningMove);
             }
 
             var forcedMove = FindBlockingMove(state, whoAreYou);
@@ -276,7 +270,10 @@ namespace ConnectFour.Strategy.BasicSearch
                 var result = await EvaluateState(state, GetOpponent(whoAreYou), depth + 1);
                 state.RemoveMove(forcedMove, y, whoAreYou);
 
-                SaveDecision(state, result, depth);
+                if (result.winner != PlayerEnum.GameNotDone)
+                {
+                    SaveDecision(state, result.winner, forcedMove, depth);
+                }
 
                 return result;
             }
@@ -286,18 +283,22 @@ namespace ConnectFour.Strategy.BasicSearch
             if (safeMoves.Length == 0)
             {
                 //_countNoSafeMoves++;
-                SaveDecision(state, GetOpponent(whoAreYou), depth);
-                return GetOpponent(whoAreYou);
+                var validMove = FindValidMove(state);
+                SaveDecision(state, GetOpponent(whoAreYou), validMove, depth);
+                return (GetOpponent(whoAreYou), validMove);
             }
 
-            if (FindDoubleThreatMoves(state, safeMoves, whoAreYou) != -1)
+            var doubleThreatMove = FindDoubleThreatMove(state, safeMoves, whoAreYou);
+
+            if (doubleThreatMove != -1)
             {
                 //_countDoubleThreat++;
-                SaveDecision(state, whoAreYou, depth);
-                return whoAreYou;
+                SaveDecision(state, whoAreYou, doubleThreatMove, depth);
+                return (whoAreYou, doubleThreatMove);
             }
 
-            var canDraw = false;
+            var canDrawMove = -1;
+            var notDone = false;
 
             var startIdx = safeMoves.Length / 2;
 
@@ -305,80 +306,87 @@ namespace ConnectFour.Strategy.BasicSearch
             {
                 var move = safeMoves[(startIdx + i) % safeMoves.Length];
                 var y = state.AddMove(move, whoAreYou);
-                var winner = await EvaluateState(state, GetOpponent(whoAreYou), depth + 1);
+                var result = await EvaluateState(state, GetOpponent(whoAreYou), depth + 1);
                 state.RemoveMove(move, y, whoAreYou);
 
-                if (winner == whoAreYou)
+                if (result.winner == whoAreYou)
                 {
                     //_countFoundWinner++;
-                    SaveDecision(state, whoAreYou, depth);
-
-                    return whoAreYou;
+                    SaveDecision(state, whoAreYou, move, depth);
+                    return (whoAreYou, move);
                 }
 
-                if (winner == PlayerEnum.Stalemate)
+                if (result.winner == PlayerEnum.Stalemate)
                 {
-                    canDraw = true;
+                    canDrawMove = move;
+                }
+
+                if (result.winner == PlayerEnum.GameNotDone)
+                {
+                    notDone = true;
                 }
             }
 
-            if (canDraw)
+            if (notDone)
+            {
+                return (PlayerEnum.GameNotDone, 0);
+            }
+
+            if (canDrawMove >= 0)
             {
                 //_countFoundDraw++;
-                SaveDecision(state, PlayerEnum.Stalemate, depth);
-
-                return PlayerEnum.Stalemate;
+                SaveDecision(state, PlayerEnum.Stalemate, canDrawMove, depth);
+                return (PlayerEnum.Stalemate, canDrawMove);
             }
 
             //_countNoWinnerFound++;
-            SaveDecision(state, GetOpponent(whoAreYou), depth);
-
-            return GetOpponent(whoAreYou);
+            SaveDecision(state, GetOpponent(whoAreYou), safeMoves[0], depth);
+            return (GetOpponent(whoAreYou), safeMoves[0]);
         }
 
-        private PlayerEnum GetDecision(GameState state)
-        {
-            return _decisions[state.GetEncoding()];
-        }
+        //private PlayerEnum GetDecision(GameState state)
+        //{
+        //    return _decisions[state.GetEncoding()];
+        //}
 
-        private bool CheckDecision(GameState state, int depth)
-        {
-            if (_decisions != null && depth <= STORAGE_DEPTH)
-            {
-                if (_generateDecisions)
-                {
-                    var result = _decisions.TryAdd(state.GetEncoding(), PlayerEnum.GameNotDone);
+        //private bool CheckDecision(GameState state, int depth)
+        //{
+        //    if (_decisions != null && depth <= STORAGE_DEPTH)
+        //    {
+        //        if (_generateDecisions)
+        //        {
+        //            var result = _decisions.TryAdd(state.GetEncoding(), PlayerEnum.GameNotDone);
 
-                    return !result;
-                }
-                else
-                {
-                    return _decisions.ContainsKey(state.GetEncoding());
-                }
-            }
+        //            return !result;
+        //        }
+        //        else
+        //        {
+        //            return _decisions.ContainsKey(state.GetEncoding());
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
-        private void SaveDecision(GameState state, PlayerEnum winner, int depth)
+        private void SaveDecision(GameState state, PlayerEnum winner, int move, int depth)
         {
             if (_generateDecisions && depth <= STORAGE_DEPTH)
             {
                 var encoding = state.GetEncoding();
-                _decisions.AddOrUpdate(encoding, winner, (a, b) => winner);
-                new Task(() => WriteWIPDecision(encoding, winner)).Start();
+                _decisions.Add(encoding, (winner, move));
+                //new Task(() => WriteWIPDecision(encoding, winner)).Start();
             }
         }
 
-        private void WriteWIPDecision(long state, PlayerEnum winner)
-        {
-            using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
-            {
-                db.ExecuteNonQuery(WIP_SQL, "@State", state, "@Winner", winner);
-            }
-        }
+        //private void WriteWIPDecision(long state, PlayerEnum winner)
+        //{
+        //    using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
+        //    {
+        //        db.ExecuteNonQuery(WIP_SQL, "@State", state, "@Winner", winner);
+        //    }
+        //}
 
-        public int FindDoubleThreatMoves(GameState state, int[] safeMoves, PlayerEnum whoAreYou)
+        public int FindDoubleThreatMove(GameState state, int[] safeMoves, PlayerEnum whoAreYou)
         {
             foreach (var m in safeMoves)
             {
@@ -448,6 +456,21 @@ namespace ConnectFour.Strategy.BasicSearch
             }
 
             return result.ToArray();
+        }
+
+        private int FindValidMove(GameState gameState)
+        {
+            var result = new List<int>();
+
+            for (int col = 0; col < 7; col++)
+            {
+                if (gameState.FindFirstEmptyRow(col) != 6)
+                {
+                    return col;
+                }
+            }
+
+            return -1;
         }
 
         private bool CheckIfMoveIsSafe(GameState state, int x, PlayerEnum whoAreYou)
