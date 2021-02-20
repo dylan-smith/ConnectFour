@@ -244,12 +244,25 @@ namespace ConnectFour.Interfaces
             _symmetryState = _symmetryState & ZERO_OUT_NEXT_EMPTY[6 - x] | mask;
         }
 
+        // This is the slower version of the below function
         public void RemoveMove(int x, int y)
         {
+            var player = GetPosition(x, y);
+
             SetFirstEmptyRow(x, y);
             SetPositionToEmpty(x, y);
 
-            // TODO: this doesn't properly update available lines
+            var lines = WinningLines.GetLineIndexesByPoint(x, y);
+
+            var opponent = GetOpponent(player);
+
+            foreach (var line in lines)
+            {
+                if (LineIsAvailable(WinningLines.GetAllWinningLines()[line], opponent))
+                {
+                    _availableLines[(int)opponent][line] = true;
+                }
+            }
         }
 
         public void RemoveMove(int x, int y, PlayerEnum player)
