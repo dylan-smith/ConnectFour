@@ -25,7 +25,7 @@ namespace ConnectFour.Strategy.BasicSearch
         //private long _countFoundWinner = 0;
         //private long _countFoundDraw = 0;
         //private long _countNoWinnerFound = 0;
-        private const int STORAGE_DEPTH = 24;
+        private const int STORAGE_DEPTH = 42;
         private const string WIP_SQL = "INSERT INTO DecisionsWIP(State, Winner) VALUES(@State, @Winner)";
         private const string CONNECTION_STRING = "Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;";
         private int MAX_DEPTH = 0;
@@ -225,11 +225,6 @@ namespace ConnectFour.Strategy.BasicSearch
             }
 
             var encoding = state.GetEncoding();
-
-            if (encoding == 1338215602166187349L)
-            {
-                var foo = 12;
-            }
 
             if (_decisions.ContainsKey(encoding))
             {
