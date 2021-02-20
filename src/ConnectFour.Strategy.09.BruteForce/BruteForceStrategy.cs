@@ -13,26 +13,24 @@ namespace ConnectFour.Strategy.BruteForce
     {
         private Dictionary<long, (PlayerEnum winner, int move)> _decisions;
         private bool _generateDecisions = false;
-        //private long _countEvaluateState = 0;
-        //private long _countMaxDepth = 0;
-        //private long _countCacheHit = 0;
-        //private long _countCacheWait = 0;
-        //private long _countWinningMove = 0;
-        //private long _countBlockingMove = 0;
-        //private long _countNoSafeMoves = 0;
-        //private long _countDoubleThreat = 0;
-        //private long _countFoundWinner = 0;
-        //private long _countFoundDraw = 0;
-        //private long _countNoWinnerFound = 0;
+        private long _countEvaluateState = 0;
+        private long _countMaxDepth = 0;
+        private long _countStalemate = 0;
+        private long _countCacheHit = 0;
+        private long _countWinningMove = 0;
+        private long _countBlockingMove = 0;
+        private long _countNoSafeMoves = 0;
+        private long _countDoubleThreat = 0;
+        private long _countFoundWinner = 0;
+        private long _countFoundDraw = 0;
+        private long _countNotDone = 0;
+        private long _countNoWinnerFound = 0;
         private const int STORAGE_DEPTH = 42;
-        private const string WIP_SQL = "INSERT INTO DecisionsWIP(State, Winner) VALUES(@State, @Winner)";
         private const string CONNECTION_STRING = "Data Source = localhost; Initial Catalog = ConnectFour; Integrated Security = True;";
         private int MAX_DEPTH = 0;
 
         public void GenerateDatabase(GameState state, PlayerEnum player)
         {
-            var opponent = GetOpponent(player);
-
             _decisions = new Dictionary<long, (PlayerEnum winner, int move)>();
 
             _generateDecisions = true;
@@ -47,12 +45,12 @@ namespace ConnectFour.Strategy.BruteForce
                 MAX_DEPTH++;
                 File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] DEPTH: {MAX_DEPTH}\n");
                 result = EvaluateState(state, player, depth).Result.winner;
+
+                var msg = $"EvaluateState: {_countEvaluateState}, Stalemate: {_countStalemate}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, NotDone: {_countNotDone}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
             }
 
-            //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-            //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
-
-            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Writing to DB...\n");
+            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Writing to DB ({_decisions.Count})...\n");
             _generateDecisions = false;
 
             WriteDecisionsToDatabase(_decisions);
@@ -142,17 +140,17 @@ namespace ConnectFour.Strategy.BruteForce
 
         private async Task<(PlayerEnum winner, int move)> EvaluateState(GameState state, PlayerEnum whoAreYou, int depth)
         {
-            //_countEvaluateState++;
+            _countEvaluateState++;
 
             if (depth == 42)
             {
-                //_countStalemate++;
+                _countStalemate++;
                 return (PlayerEnum.Stalemate, 0);
             }
 
             if (depth >= MAX_DEPTH)
             {
-                //_countMaxDepth++;
+                _countMaxDepth++;
                 return (PlayerEnum.GameNotDone, 0);
             }
 
@@ -160,7 +158,7 @@ namespace ConnectFour.Strategy.BruteForce
 
             if (_decisions.ContainsKey(encoding))
             {
-                //_countCacheHit++;
+                _countCacheHit++;
                 return _decisions[encoding];
             }
 
@@ -168,7 +166,7 @@ namespace ConnectFour.Strategy.BruteForce
 
             if (winningMove != -1)
             {
-                //_countWinningMove++;
+                _countWinningMove++;
                 SaveDecision(state, whoAreYou, winningMove, depth);
                 return (whoAreYou, winningMove);
             }
@@ -177,7 +175,7 @@ namespace ConnectFour.Strategy.BruteForce
 
             if (forcedMove != -1)
             {
-                //_countBlockingMove++;
+                _countBlockingMove++;
                 var y = state.AddMove(forcedMove, whoAreYou);
                 var result = await EvaluateState(state, GetOpponent(whoAreYou), depth + 1);
                 state.RemoveMove(forcedMove, y, whoAreYou);
@@ -194,7 +192,7 @@ namespace ConnectFour.Strategy.BruteForce
 
             if (safeMoves.Length == 0)
             {
-                //_countNoSafeMoves++;
+                _countNoSafeMoves++;
                 var validMove = FindValidMove(state);
                 SaveDecision(state, GetOpponent(whoAreYou), validMove, depth);
                 return (GetOpponent(whoAreYou), validMove);
@@ -204,7 +202,7 @@ namespace ConnectFour.Strategy.BruteForce
 
             if (doubleThreatMove != -1)
             {
-                //_countDoubleThreat++;
+                _countDoubleThreat++;
                 SaveDecision(state, whoAreYou, doubleThreatMove, depth);
                 return (whoAreYou, doubleThreatMove);
             }
@@ -223,7 +221,7 @@ namespace ConnectFour.Strategy.BruteForce
 
                 if (result.winner == whoAreYou)
                 {
-                    //_countFoundWinner++;
+                    _countFoundWinner++;
                     SaveDecision(state, whoAreYou, move, depth);
                     return (whoAreYou, move);
                 }
@@ -241,17 +239,18 @@ namespace ConnectFour.Strategy.BruteForce
 
             if (notDone)
             {
+                _countNotDone++;
                 return (PlayerEnum.GameNotDone, 0);
             }
 
             if (canDrawMove >= 0)
             {
-                //_countFoundDraw++;
+                _countFoundDraw++;
                 SaveDecision(state, PlayerEnum.Stalemate, canDrawMove, depth);
                 return (PlayerEnum.Stalemate, canDrawMove);
             }
 
-            //_countNoWinnerFound++;
+            _countNoWinnerFound++;
             SaveDecision(state, GetOpponent(whoAreYou), safeMoves[0], depth);
             return (GetOpponent(whoAreYou), safeMoves[0]);
         }
