@@ -7,11 +7,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using ConnectFour.Interfaces;
 
-namespace ConnectFour.Strategy.BasicSearch
+namespace ConnectFour.Strategy.BruteForce
 {
-    public class BasicSearchStrategy : IStrategy
+    public class BruteForceStrategy : IStrategy
     {
-        //private ConcurrentDictionary<long, PlayerEnum> _decisions;
         private Dictionary<long, (PlayerEnum winner, int move)> _decisions;
         private bool _generateDecisions = false;
         //private long _countEvaluateState = 0;
@@ -34,11 +33,9 @@ namespace ConnectFour.Strategy.BasicSearch
         {
             var opponent = GetOpponent(player);
 
-            //_decisions = ReadWIPDecisions();
             _decisions = new Dictionary<long, (PlayerEnum winner, int move)>();
 
             _generateDecisions = true;
-            //var tasks = new List<Task>();
             var depth = state.GetTotalMoves();
             MAX_DEPTH = depth;
             var result = PlayerEnum.GameNotDone;
@@ -52,57 +49,8 @@ namespace ConnectFour.Strategy.BasicSearch
                 result = EvaluateState(state, player, depth).Result.winner;
             }
 
-            //for (var a = 0; a <= 6; a++)
-            //{
-            //    var y1 = state.AddMove(a, player);
-
-            //    //var threadState = state.Copy();
-
-            //    //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
-            //    //task.Start();
-            //    //tasks.Add(task);
-
-            //    for (var b = 0; b <= 6; b++)
-            //    {
-            //        var y2 = state.AddMove(b, opponent);
-
-            //        var threadState = state.Copy();
-
-            //        var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
-            //        task.Start();
-            //        tasks.Add(task);
-
-            //        //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
-            //        //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-            //        //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
-
-            //        //for (var c = 0; c <= 6; c++)
-            //        //{
-            //        //    var y3 = state.AddMove(c, player);
-            //        //    var threadState = state.Copy();
-
-            //        //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
-            //        //    task.Start();
-            //        //    tasks.Add(task);
-
-            //        //    state.RemoveMove(c, y3);
-            //        //}
-
-            //        state.RemoveMove(b, y2, opponent);
-            //    }
-
-            //    state.RemoveMove(a, y1, player);
-            //}
-
-            //while (tasks.Any())
-            //{
-            //    var done = Task.WaitAny(tasks.ToArray());
-            //    tasks.RemoveAt(done);
-
-            //    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } left)\n");
-            //    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-            //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
-            //}
+            //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+            //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
 
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Writing to DB...\n");
             _generateDecisions = false;
@@ -110,23 +58,6 @@ namespace ConnectFour.Strategy.BasicSearch
             WriteDecisionsToDatabase(_decisions);
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] DONE\n");
         }
-
-        //private ConcurrentDictionary<long, PlayerEnum> ReadWIPDecisions()
-        //{
-        //    using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
-        //    {
-        //        var table = db.GetDataTable("SELECT * FROM DecisionsWIP");
-
-        //        var result = new ConcurrentDictionary<long, PlayerEnum>();
-
-        //        foreach (var row in table)
-        //        {
-        //            result.TryAdd(Convert.ToInt64((long)row["State"]), (PlayerEnum)Convert.ToInt32((byte)row["Winner"]));
-        //        }
-
-        //        return result;
-        //    }
-        //}
 
         private Dictionary<long, (PlayerEnum winner, int move)> ReadDecisionsFromDatabase()
         {
@@ -215,12 +146,13 @@ namespace ConnectFour.Strategy.BasicSearch
 
             if (depth == 42)
             {
-                //_countMaxDepth++;
+                //_countStalemate++;
                 return (PlayerEnum.Stalemate, 0);
             }
 
             if (depth >= MAX_DEPTH)
             {
+                //_countMaxDepth++;
                 return (PlayerEnum.GameNotDone, 0);
             }
 
@@ -228,24 +160,9 @@ namespace ConnectFour.Strategy.BasicSearch
 
             if (_decisions.ContainsKey(encoding))
             {
+                //_countCacheHit++;
                 return _decisions[encoding];
             }
-
-            //if (CheckDecision(state, depth))
-            //{
-            //    //_countCacheHit++;
-
-            //    var decision = GetDecision(state);
-
-            //    while (decision == PlayerEnum.GameNotDone)
-            //    {
-            //        //_countCacheWait++;
-            //        await Task.Yield();
-            //        decision = GetDecision(state);
-            //    }
-
-            //    return decision;
-            //}
 
             var winningMove = FindWinningMove(state, whoAreYou);
 
@@ -339,47 +256,14 @@ namespace ConnectFour.Strategy.BasicSearch
             return (GetOpponent(whoAreYou), safeMoves[0]);
         }
 
-        //private PlayerEnum GetDecision(GameState state)
-        //{
-        //    return _decisions[state.GetEncoding()];
-        //}
-
-        //private bool CheckDecision(GameState state, int depth)
-        //{
-        //    if (_decisions != null && depth <= STORAGE_DEPTH)
-        //    {
-        //        if (_generateDecisions)
-        //        {
-        //            var result = _decisions.TryAdd(state.GetEncoding(), PlayerEnum.GameNotDone);
-
-        //            return !result;
-        //        }
-        //        else
-        //        {
-        //            return _decisions.ContainsKey(state.GetEncoding());
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
         private void SaveDecision(GameState state, PlayerEnum winner, int move, int depth)
         {
             if (_generateDecisions && depth <= STORAGE_DEPTH)
             {
                 var encoding = state.GetEncoding();
                 _decisions.Add(encoding, (winner, move));
-                //new Task(() => WriteWIPDecision(encoding, winner)).Start();
             }
         }
-
-        //private void WriteWIPDecision(long state, PlayerEnum winner)
-        //{
-        //    using (var db = new SqlServerDatabaseLayer(CONNECTION_STRING))
-        //    {
-        //        db.ExecuteNonQuery(WIP_SQL, "@State", state, "@Winner", winner);
-        //    }
-        //}
 
         public int FindDoubleThreatMove(GameState state, int[] safeMoves, PlayerEnum whoAreYou)
         {
@@ -432,21 +316,6 @@ namespace ConnectFour.Strategy.BasicSearch
                     {
                         result.Add(col);
                     }
-                }
-            }
-
-            return result.ToArray();
-        }
-
-        private int[] FindValidMoves(GameState gameState)
-        {
-            var result = new List<int>();
-
-            for (int col = 0; col < 7; col++)
-            {
-                if (gameState.FindFirstEmptyRow(col) != 6)
-                {
-                    result.Add(col);
                 }
             }
 

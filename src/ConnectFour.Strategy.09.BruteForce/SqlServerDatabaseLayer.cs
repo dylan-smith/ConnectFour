@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ConnectFour.Strategy.BasicSearch
+namespace ConnectFour.Strategy.BruteForce
 {
     public class SqlServerDatabaseLayer : IDisposable
     {

@@ -5,29 +5,29 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.UI", "ConnectFour.UI\ConnectFour.UI.csproj", "{1C873E05-9C95-4BE2-8EE6-8A1FE6916C6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Engine", "ConnectFour.Engine\ConnectFour.Engine.csproj", "{845AB37A-88BF-48E0-A653-C3B8E77E65C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Engine", "ConnectFour.Engine\ConnectFour.Engine.csproj", "{845AB37A-88BF-48E0-A653-C3B8E77E65C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Interfaces", "ConnectFour.Interfaces\ConnectFour.Interfaces.csproj", "{EEF4A578-EC1E-42EF-89A2-8A09D053C86A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Interfaces", "ConnectFour.Interfaces\ConnectFour.Interfaces.csproj", "{EEF4A578-EC1E-42EF-89A2-8A09D053C86A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Strategies", "Strategies", "{E296DC13-E25C-493F-9C2E-C4659238EF2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.01.Random", "ConnectFour.Strategy.01.Random\ConnectFour.Strategy.01.Random.csproj", "{6D14065B-B11C-42A8-8BF0-97DCFBD4AA2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.01.Random", "ConnectFour.Strategy.01.Random\ConnectFour.Strategy.01.Random.csproj", "{6D14065B-B11C-42A8-8BF0-97DCFBD4AA2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.02.MakeWinningMove", "ConnectFour.Strategy.02.MakeWinningMove\ConnectFour.Strategy.02.MakeWinningMove.csproj", "{7D489C73-EB8F-4C7A-A4D6-87A413004D72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.02.MakeWinningMove", "ConnectFour.Strategy.02.MakeWinningMove\ConnectFour.Strategy.02.MakeWinningMove.csproj", "{7D489C73-EB8F-4C7A-A4D6-87A413004D72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.03.BlockOpponentsLine", "ConnectFour.Strategy.03.BlockOpponentsLine\ConnectFour.Strategy.03.BlockOpponentsLine.csproj", "{EA201109-2C3D-43B2-A955-7210855A869A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.03.BlockOpponentsLine", "ConnectFour.Strategy.03.BlockOpponentsLine\ConnectFour.Strategy.03.BlockOpponentsLine.csproj", "{EA201109-2C3D-43B2-A955-7210855A869A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.04.DontGiveOpponentWinningMove", "ConnectFour.Strategy.04.DontGiveOpponentWinningMove\ConnectFour.Strategy.04.DontGiveOpponentWinningMove.csproj", "{D244554C-ED0F-43BA-A56B-CC6B00D4C722}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.04.DontGiveOpponentWinningMove", "ConnectFour.Strategy.04.DontGiveOpponentWinningMove\ConnectFour.Strategy.04.DontGiveOpponentWinningMove.csproj", "{D244554C-ED0F-43BA-A56B-CC6B00D4C722}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.05.FindMoveWithHighestLineCount", "ConnectFour.Strategy.05.FindMoveWithHighestLineCount\ConnectFour.Strategy.05.FindMoveWithHighestLineCount.csproj", "{93C1D0AA-9A98-467D-B7C7-E5E6D2DD9D51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.05.FindMoveWithHighestLineCount", "ConnectFour.Strategy.05.FindMoveWithHighestLineCount\ConnectFour.Strategy.05.FindMoveWithHighestLineCount.csproj", "{93C1D0AA-9A98-467D-B7C7-E5E6D2DD9D51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.06.CountLineChips", "ConnectFour.Strategy.06.CountLineChips\ConnectFour.Strategy.06.CountLineChips.csproj", "{C407D53E-54B8-4895-909F-4739D57EB49D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.06.CountLineChips", "ConnectFour.Strategy.06.CountLineChips\ConnectFour.Strategy.06.CountLineChips.csproj", "{C407D53E-54B8-4895-909F-4739D57EB49D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.07.FindDoubleThreat", "ConnectFour.Strategy.07.FindDoubleThreat\ConnectFour.Strategy.07.FindDoubleThreat.csproj", "{A58E1666-127B-4F72-8069-808891B2BEE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.07.FindDoubleThreat", "ConnectFour.Strategy.07.FindDoubleThreat\ConnectFour.Strategy.07.FindDoubleThreat.csproj", "{A58E1666-127B-4F72-8069-808891B2BEE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.08.BlockDoubleThreat", "ConnectFour.Strategy.08.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj", "{E4F63989-76BC-4221-B09E-044E7C17DB7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.08.BlockDoubleThreat", "ConnectFour.Strategy.08.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj", "{E4F63989-76BC-4221-B09E-044E7C17DB7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFour.Strategy.09.BasicSearch", "ConnectFour.Strategy.09.BasicSearch\ConnectFour.Strategy.09.BasicSearch.csproj", "{64E7C471-B49C-423F-9D4A-1C605E708F0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.09.BruteForce", "ConnectFour.Strategy.09.BruteForce\ConnectFour.Strategy.09.BruteForce.csproj", "{64E7C471-B49C-423F-9D4A-1C605E708F0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

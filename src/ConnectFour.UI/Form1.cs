@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ConnectFour.Engine;
 using ConnectFour.Interfaces;
-using ConnectFour.Strategy.BasicSearch;
+using ConnectFour.Strategy.BruteForce;
 using ConnectFour.Strategy.BlockDoubleThreat;
 using ConnectFour.Strategy.BlockOpponentsLine;
 using ConnectFour.Strategy.CountLineChips;
@@ -99,7 +99,7 @@ namespace ConnectFour.UI
             //ShowResults(results);
 
 
-            _playerOne = new BasicSearchStrategy();
+            _playerOne = new BruteForceStrategy();
             _playerTwo = new BlockDoubleThreatStrategy();
 
             WinningLines.Initialize();
@@ -207,7 +207,7 @@ namespace ConnectFour.UI
 
             var whoGoesNext = PlayerEnum.PlayerOne;
 
-            ((BasicSearchStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
+            ((BruteForceStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
 
             //BenchmarkAddMove();
             //BenchmarkGetAvailableLines();
@@ -279,7 +279,7 @@ namespace ConnectFour.UI
             state.AddMove(1, PlayerEnum.PlayerOne);
             state.AddMove(2, PlayerEnum.PlayerTwo);
 
-            var player = new BasicSearchStrategy();
+            var player = new BruteForceStrategy();
 
             for (var i = 0; i < loops; i++)
             {
@@ -312,7 +312,7 @@ namespace ConnectFour.UI
             state.AddMove(1, PlayerEnum.PlayerOne);
             state.AddMove(2, PlayerEnum.PlayerTwo);
 
-            var player = new BasicSearchStrategy();
+            var player = new BruteForceStrategy();
 
             for (var i = 0; i < loops; i++)
             {
@@ -345,7 +345,7 @@ namespace ConnectFour.UI
             state.AddMove(1, PlayerEnum.PlayerOne);
             state.AddMove(2, PlayerEnum.PlayerTwo);
 
-            var player = new BasicSearchStrategy();
+            var player = new BruteForceStrategy();
 
             for (var i = 0; i < loops; i++)
             {
@@ -378,7 +378,7 @@ namespace ConnectFour.UI
             state.AddMove(1, PlayerEnum.PlayerOne);
             state.AddMove(2, PlayerEnum.PlayerTwo);
 
-            var player = new BasicSearchStrategy();
+            var player = new BruteForceStrategy();
             var safeMoves = player.FindSafeMoves(state, PlayerEnum.PlayerOne);
 
             for (var i = 0; i < loops; i++)
