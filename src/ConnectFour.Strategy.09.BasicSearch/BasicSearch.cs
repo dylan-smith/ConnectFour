@@ -40,57 +40,63 @@ namespace ConnectFour.Strategy.BasicSearch
 
             File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] STARTING\n");
 
-            for (var a = 0; a <= 6; a++)
-            {
-                var y1 = state.AddMove(a, player);
+            var result = EvaluateState(state, player, depth).Result;
 
-                //var threadState = state.Copy();
 
-                //var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
-                //task.Start();
-                //tasks.Add(task);
+            //for (var a = 0; a <= 6; a++)
+            //{
+            //    if (state.FindFirstEmptyRow(a) < 6)
+            //    {
+            //        var y1 = state.AddMove(a, player);
 
-                for (var b = 0; b <= 6; b++)
-                {
-                    var y2 = state.AddMove(b, opponent);
+            //        var threadState = state.Copy();
 
-                    var threadState = state.Copy();
+            //        var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 1).Result);
+            //        task.Start();
+            //        tasks.Add(task);
 
-                    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
-                    task.Start();
-                    tasks.Add(task);
+            //        //for (var b = 0; b <= 6; b++)
+            //        //{
+            //        //    var y2 = state.AddMove(b, opponent);
 
-                    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
-                    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-                    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
+            //        //    var threadState = state.Copy();
 
-                    //for (var c = 0; c <= 6; c++)
-                    //{
-                    //    var y3 = state.AddMove(c, player);
-                    //    var threadState = state.Copy();
+            //        //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, player, depth + 2).Result);
+            //        //    task.Start();
+            //        //    tasks.Add(task);
 
-                    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
-                    //    task.Start();
-                    //    tasks.Add(task);
+            //        //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } done)\n");
+            //        //    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+            //        //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
 
-                    //    state.RemoveMove(c, y3);
-                    //}
+            //        //    //for (var c = 0; c <= 6; c++)
+            //        //    //{
+            //        //    //    var y3 = state.AddMove(c, player);
+            //        //    //    var threadState = state.Copy();
 
-                    state.RemoveMove(b, y2, opponent);
-                }
+            //        //    //    var task = new Task<PlayerEnum>(() => EvaluateState(threadState, opponent, depth + 3).Result);
+            //        //    //    task.Start();
+            //        //    //    tasks.Add(task);
 
-                state.RemoveMove(a, y1, player);
-            }
+            //        //    //    state.RemoveMove(c, y3);
+            //        //    //}
 
-            while (tasks.Any())
-            {
-                var done = Task.WaitAny(tasks.ToArray());
-                tasks.RemoveAt(done);
+            //        //    state.RemoveMove(b, y2, opponent);
+            //        //}
 
-                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } left)\n");
-                //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
-                //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
-            }
+            //        state.RemoveMove(a, y1, player);
+            //    }
+            //}
+
+            //while (tasks.Any())
+            //{
+            //    var done = Task.WaitAny(tasks.ToArray());
+            //    tasks.RemoveAt(done);
+
+            //    File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Thread Complete ({ tasks.Count } left)\n");
+            //    //var msg = $"EvaluateState: {_countEvaluateState}, MaxDepth: {_countMaxDepth}, CacheHit: {_countCacheHit}, CacheWait: {_countCacheWait}, WinningMove: {_countWinningMove}, BlockingMove: {_countBlockingMove}, NoSafeMoves: {_countNoSafeMoves}, DoubleThreat: {_countDoubleThreat}, FoundWinner: {_countFoundWinner}, FoundDraw: {_countFoundDraw}, NoWinnerFound: {_countNoWinnerFound}";
+            //    //File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] {msg}\n");
+            //}
 
             _generateDecisions = false;
 

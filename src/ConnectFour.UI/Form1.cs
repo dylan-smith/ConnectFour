@@ -107,6 +107,49 @@ namespace ConnectFour.UI
             var log = new GameLog(PlayerEnum.PlayerOne);
             var results = new SimulationResult();
 
+            state.AddMove(3, PlayerEnum.PlayerOne);
+            log.Moves.Add(3);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            log.Moves.Add(3);
+            state.AddMove(3, PlayerEnum.PlayerOne);
+            log.Moves.Add(3);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            log.Moves.Add(3);
+            state.AddMove(3, PlayerEnum.PlayerOne);
+            log.Moves.Add(3);
+            state.AddMove(3, PlayerEnum.PlayerTwo);
+            log.Moves.Add(3);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            log.Moves.Add(4);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            log.Moves.Add(5);
+            state.AddMove(1, PlayerEnum.PlayerOne);
+            log.Moves.Add(1);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+            log.Moves.Add(2);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            log.Moves.Add(2);
+            state.AddMove(5, PlayerEnum.PlayerTwo);
+            log.Moves.Add(5);
+
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            log.Moves.Add(4);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+            log.Moves.Add(2);
+            state.AddMove(2, PlayerEnum.PlayerOne);
+            log.Moves.Add(2);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+            log.Moves.Add(2);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            log.Moves.Add(4);
+            state.AddMove(4, PlayerEnum.PlayerTwo);
+            log.Moves.Add(4);
+            state.AddMove(4, PlayerEnum.PlayerOne);
+            log.Moves.Add(4);
+            state.AddMove(2, PlayerEnum.PlayerTwo);
+            log.Moves.Add(2);
+
+
             //state.AddMove(0, PlayerEnum.PlayerOne);
             //log.Moves.Add(0);
             //state.AddMove(1, PlayerEnum.PlayerTwo);
