@@ -16,7 +16,7 @@
     <ProjectReference Include="..\ConnectFour.Strategy.06.CountLineChips\ConnectFour.Strategy.06.CountLineChips.csproj" />
     <ProjectReference Include="..\ConnectFour.Strategy.07.FindDoubleThreat\ConnectFour.Strategy.07.FindDoubleThreat.csproj" />
     <ProjectReference Include="..\ConnectFour.Strategy.08.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj" />
-    <ProjectReference Include="..\ConnectFour.Strategy.09.BasicSearch\ConnectFour.Strategy.09.BasicSearch.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.09.BruteForce\ConnectFour.Strategy.09.BruteForce.csproj" />
   </ItemGroup>
 
 </Project>
