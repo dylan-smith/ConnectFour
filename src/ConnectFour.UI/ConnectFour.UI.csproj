@@ -18,6 +18,7 @@
     <ProjectReference Include="..\ConnectFour.Strategy.08.BlockDoubleThreat\ConnectFour.Strategy.08.BlockDoubleThreat.csproj" />
     <ProjectReference Include="..\ConnectFour.Strategy.09.BruteForce\ConnectFour.Strategy.09.BruteForce.csproj" />
     <ProjectReference Include="..\ConnectFour.Strategy.10.BoundedSearch\ConnectFour.Strategy.10.BoundedSearch.csproj" />
+    <ProjectReference Include="..\ConnectFour.Strategy.11.MonteCarlo\ConnectFour.Strategy.11.MonteCarlo.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>ConnectFour.Strategy.HeuristicScoring</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConnectFour.Interfaces\ConnectFour.Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>

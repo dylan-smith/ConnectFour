@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ConnectFour.Interfaces;
 
 namespace ConnectFour.Engine
@@ -14,11 +15,14 @@ namespace ConnectFour.Engine
             WinningLines.Initialize();
 
             var whoGoesFirst = RandomlyDecideWhoGoesFirst();
+            File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Starting Simulation {numGames} games...\n");
 
             for (int i = 0; i < numGames; i++)
             {
                 var gameResult = SimulateGame(playerOne, playerTwo, whoGoesFirst);
                 results.AddGameResult(gameResult);
+
+                File.AppendAllText(@"C:\git\ConnectFour\ConnectFour.log", $"[{DateTime.Now}] Game Complete {i} / {numGames} (Winner: {gameResult.Winner.ToString()})\n");
 
                 whoGoesFirst = DecideWhoGoesFirst(gameResult);
             }

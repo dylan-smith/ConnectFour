@@ -19,6 +19,7 @@ using ConnectFour.Strategy.FindMoveWithHighestLineCount;
 using ConnectFour.Strategy.MakeWinningMove;
 using ConnectFour.Strategy.Random;
 using ConnectFour.Strategy.BoundedSearch;
+using ConnectFour.Strategy.MonteCarlo;
 
 namespace ConnectFour.UI
 {
@@ -93,7 +94,7 @@ namespace ConnectFour.UI
             WinningLines.Initialize();
             var engine = new GameEngine();
 
-            _playerOne = new BoundedSearchStrategy(7);
+            _playerOne = new MonteCarloStrategy(3, 10);
             _playerTwo = new BoundedSearchStrategy(4);
 
             var results = engine.RunSimulation(int.Parse(NumberOfGamesTextBox.Text), _playerOne, _playerTwo);
