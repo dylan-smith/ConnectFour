@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.08.Blo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.09.BruteForce", "ConnectFour.Strategy.09.BruteForce\ConnectFour.Strategy.09.BruteForce.csproj", "{64E7C471-B49C-423F-9D4A-1C605E708F0C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFour.Strategy.10.BoundedSearch", "ConnectFour.Strategy.10.BoundedSearch\ConnectFour.Strategy.10.BoundedSearch.csproj", "{BE52529D-06D2-4B7D-9A8A-7441A7294C89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{64E7C471-B49C-423F-9D4A-1C605E708F0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64E7C471-B49C-423F-9D4A-1C605E708F0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64E7C471-B49C-423F-9D4A-1C605E708F0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE52529D-06D2-4B7D-9A8A-7441A7294C89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE52529D-06D2-4B7D-9A8A-7441A7294C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE52529D-06D2-4B7D-9A8A-7441A7294C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE52529D-06D2-4B7D-9A8A-7441A7294C89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +103,7 @@ Global
 		{A58E1666-127B-4F72-8069-808891B2BEE1} = {E296DC13-E25C-493F-9C2E-C4659238EF2C}
 		{E4F63989-76BC-4221-B09E-044E7C17DB7E} = {E296DC13-E25C-493F-9C2E-C4659238EF2C}
 		{64E7C471-B49C-423F-9D4A-1C605E708F0C} = {E296DC13-E25C-493F-9C2E-C4659238EF2C}
+		{BE52529D-06D2-4B7D-9A8A-7441A7294C89} = {E296DC13-E25C-493F-9C2E-C4659238EF2C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BE9D7990-B11E-48A9-9FFA-A32BDB5EA01E}

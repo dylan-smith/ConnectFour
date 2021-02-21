@@ -18,6 +18,7 @@ using ConnectFour.Strategy.FindDoubleThreat;
 using ConnectFour.Strategy.FindMoveWithHighestLineCount;
 using ConnectFour.Strategy.MakeWinningMove;
 using ConnectFour.Strategy.Random;
+using ConnectFour.Strategy.BoundedSearch;
 
 namespace ConnectFour.UI
 {
@@ -89,168 +90,15 @@ namespace ConnectFour.UI
 
         private void RunSimulationButton_Click(object sender, EventArgs e)
         {
-            //var engine = new GameEngine();
-
-            //_playerOne = new BlockDoubleThreatStrategy();
-            //_playerTwo = new BasicSearchStrategy();
-
-            //var results = engine.RunSimulation(int.Parse(NumberOfGamesTextBox.Text), _playerOne, _playerTwo);
-
-            //ShowResults(results);
-
-
-            _playerOne = new BruteForceStrategy();
-            _playerTwo = new BlockDoubleThreatStrategy();
-
             WinningLines.Initialize();
-            var state = new GameState();
-            var log = new GameLog(PlayerEnum.PlayerOne);
-            var results = new SimulationResult();
+            var engine = new GameEngine();
 
-            state.AddMove(3, PlayerEnum.PlayerOne);
-            log.Moves.Add(3);
-            state.AddMove(3, PlayerEnum.PlayerTwo);
-            log.Moves.Add(3);
-            state.AddMove(3, PlayerEnum.PlayerOne);
-            log.Moves.Add(3);
-            state.AddMove(3, PlayerEnum.PlayerTwo);
-            log.Moves.Add(3);
-            state.AddMove(3, PlayerEnum.PlayerOne);
-            log.Moves.Add(3);
-            state.AddMove(3, PlayerEnum.PlayerTwo);
-            log.Moves.Add(3);
-            state.AddMove(4, PlayerEnum.PlayerOne);
-            log.Moves.Add(4);
-            state.AddMove(5, PlayerEnum.PlayerTwo);
-            log.Moves.Add(5);
-            state.AddMove(1, PlayerEnum.PlayerOne);
-            log.Moves.Add(1);
-            state.AddMove(2, PlayerEnum.PlayerTwo);
-            log.Moves.Add(2);
-            state.AddMove(2, PlayerEnum.PlayerOne);
-            log.Moves.Add(2);
-            state.AddMove(5, PlayerEnum.PlayerTwo);
-            log.Moves.Add(5);
+            _playerOne = new BoundedSearchStrategy(7);
+            _playerTwo = new BoundedSearchStrategy(4);
 
-            state.AddMove(4, PlayerEnum.PlayerOne);
-            log.Moves.Add(4);
-            state.AddMove(2, PlayerEnum.PlayerTwo);
-            log.Moves.Add(2);
-            state.AddMove(2, PlayerEnum.PlayerOne);
-            log.Moves.Add(2);
-            state.AddMove(2, PlayerEnum.PlayerTwo);
-            log.Moves.Add(2);
-            state.AddMove(4, PlayerEnum.PlayerOne);
-            log.Moves.Add(4);
-            state.AddMove(4, PlayerEnum.PlayerTwo);
-            log.Moves.Add(4);
-            //state.AddMove(4, PlayerEnum.PlayerOne);
-            //log.Moves.Add(4);
-            //state.AddMove(2, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(2);
-
-            //state.AddMove(5, PlayerEnum.PlayerOne);
-            //log.Moves.Add(5);
-            //state.AddMove(5, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(5);
-            //state.AddMove(6, PlayerEnum.PlayerOne);
-            //log.Moves.Add(6);
-            //state.AddMove(0, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(0);
-            //state.AddMove(1, PlayerEnum.PlayerOne);
-            //log.Moves.Add(1);
-            //state.AddMove(1, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(1);
-
-            //state.AddMove(0, PlayerEnum.PlayerOne);
-            //log.Moves.Add(0);
-            //state.AddMove(1, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(1);
-            //state.AddMove(2, PlayerEnum.PlayerOne);
-            //log.Moves.Add(2);
-            //state.AddMove(3, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(3);
-            //state.AddMove(4, PlayerEnum.PlayerOne);
-            //log.Moves.Add(4);
-            //state.AddMove(5, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(5);
-            //state.AddMove(6, PlayerEnum.PlayerOne);
-            //log.Moves.Add(6);
-            //state.AddMove(0, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(0);
-            //state.AddMove(1, PlayerEnum.PlayerOne);
-            //log.Moves.Add(1);
-            //state.AddMove(2, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(2);
-            //state.AddMove(3, PlayerEnum.PlayerOne);
-            //log.Moves.Add(3);
-            //state.AddMove(4, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(4);
-
-            //state.AddMove(0, PlayerEnum.PlayerOne);
-            //log.Moves.Add(0);
-            //state.AddMove(0, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(0);
-            //state.AddMove(0, PlayerEnum.PlayerOne);
-            //log.Moves.Add(0);
-            //state.AddMove(0, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(0);
-
-            //state.AddMove(1, PlayerEnum.PlayerOne);
-            //log.Moves.Add(1);
-            //state.AddMove(1, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(1);
-            //state.AddMove(1, PlayerEnum.PlayerOne);
-            //log.Moves.Add(1);
-            //state.AddMove(1, PlayerEnum.PlayerTwo);
-            //log.Moves.Add(1);
-
-            var whoGoesNext = PlayerEnum.PlayerOne;
-
-            ((BruteForceStrategy)_playerOne).GenerateDatabase(state, whoGoesNext);
-
-            while (log.Winner != PlayerEnum.PlayerOne && log.Winner != PlayerEnum.PlayerTwo)
-            {
-                int nextMove;
-
-                if (whoGoesNext == PlayerEnum.PlayerOne)
-                {
-                    nextMove = _playerOne.MakeMove(state, whoGoesNext);
-                }
-                else
-                {
-                    nextMove = _playerTwo.MakeMove(state, whoGoesNext);
-                }
-
-                state.AddMove(nextMove, whoGoesNext);
-                log.Moves.Add(nextMove);
-
-                var whoWon = state.CheckForWinner();
-
-                if (whoWon != PlayerEnum.GameNotDone)
-                {
-                    log.Winner = whoWon;
-                    results.AddGameResult(log);
-                }
-
-                if (whoGoesNext == PlayerEnum.PlayerOne)
-                {
-                    whoGoesNext = PlayerEnum.PlayerTwo;
-                }
-                else
-                {
-                    whoGoesNext = PlayerEnum.PlayerOne;
-                }
-            }
+            var results = engine.RunSimulation(int.Parse(NumberOfGamesTextBox.Text), _playerOne, _playerTwo);
 
             ShowResults(results);
-
-            //var start = new Stopwatch();
-            //start.Start();
-            //strat.MakeMove(state, PlayerEnum.PlayerOne);
-            //var end = start.ElapsedMilliseconds;
-
-            //MessageBox.Show("Done! " + end.ToString());
         }
 
         private void ShowResults(SimulationResult results)
